@@ -10,22 +10,44 @@
 /****************************************************************************************/
 #define GMAIL_SMTP_SERVER "smtp.gmail.com"
 #define GMAIL_SMTP_PORT 465
-#define OUTLOOK_SMTP_SERVER "smtp.office365.com"
-#define OUTLOOK_SMTP_PORT 587
+//#define OUTLOOK_SMTP_SERVER "smtp.office365.com"
+//#define OUTLOOK_SMTP_PORT 587
 
 /* Credenciales e-mail */
 #define GMAIL_SMTP_USERNAME "marcosrc1992.inycom@gmail.com"
 #define GMAIL_SMTP_PASSWORD "Cc985090785"
 
 /* ASIGNACIONES DE PINES DEL ESP32*/
-#define P_LEDWIFI 18  //modo OUTPUT (Digital)
-#define P_ACK 19      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
-#define P_LEDOK 17    //modo OUTPUT (Digital)
-#define P_LEDALM 16   //modo OUTPUT (Digital)
-#define P_BUZZALM 12  //modo OUTPUT (Digital)
-//La Pt100 se encuentra en el 34
+#define P_LEDWIFI 23  //modo OUTPUT (Digital)
 
+#define P_ACK_0 22      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
+#define P_ACK_1 3      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
+#define P_ACK_2 15      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
+#define P_ACK_3 8       //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 
+//RGB1
+#define P_SENSOR0 39  //Analog
+#define P_L0VERDE 19  //modo OUTPUT (Digital)
+#define P_L0ROJO 18   //modo OUTPUT (Digital)
+
+//RGB2
+#define P_SENSOR1 32  //Analog
+#define P_L1VERDE 17  //modo OUTPUT (Digital)
+#define P_L1ROJO 16   //modo OUTPUT (Digital)
+
+//RGB3
+#define P_SENSOR2 26  //Analog
+#define P_L2VERDE 0  //modo OUTPUT (Digital)
+#define P_L2ROJO 2   //modo OUTPUT (Digital)
+
+//RGB4
+#define P_SENSOR3 12  //Analog
+#define P_L3VERDE 6  //modo OUTPUT (Digital)
+#define P_L3ROJO 7   //modo OUTPUT (Digital)
+
+#define P_BUZZALM 11  //modo OUTPUT (Digital)
+
+#define N_SENSORES 4
 #define N_TIMERMAX 480  //tiempo en medias horas para que salte la alarma
 #define N_INTENTOS_WIFI_MAX 30
 
@@ -58,27 +80,32 @@ char* EMAIL_LIST[NUM_EMAIL_USERS] = {"ruben.martinezm@inycom.es", "marcos.rodrig
 SMTPData data;
 
 //Declaracion de funcion de interrupción de pulsacion
-void IRAM_ATTR ISR_ACK();
+void IRAM_ATTR ISR_ACK0();
+void IRAM_ATTR ISR_ACK1();
+void IRAM_ATTR ISR_ACK2();
+void IRAM_ATTR ISR_ACK3();
+
 volatile bool flag_ACK = 0;
 
 //Declaración la de funcion de estados
-void maquina_estados(int);
+void maquina_estados(int, int);
 void estados_automaticos();
-int estado = 0;
+int estado[N_SENSORES] = {0,0,0,0};
 
-// Analog ADC1_CH6 incializacion
-const int P_pt100 = 34;
-float pt100Value = 0;
-float temp_actual = 0;
-float temp_preop = 0;
+// Analog incializacion
+
+float calculo_temp(float);
+float Val_sensor = 0;
+float temp_actual[N_SENSORES] = {0,0,0,0};
+
 
 //variables de estado
 bool W_conexion = 1;
-bool estado_arranque = 0;
-bool estado_OK = 0;
-bool estado_ACK = 0;
-bool estado_revision = 0;
-bool estado_revisado = 0;
+bool estado_arranque[N_SENSORES] = {0,0,0,0};
+bool estado_OK[N_SENSORES] = {0,0,0,0};
+bool estado_ACK[N_SENSORES] = {0,0,0,0};
+bool estado_revision[N_SENSORES] = {0,0,0,0};
+bool estado_revisado[N_SENSORES] = {0,0,0,0};
 
 bool estadoLEDWIFI = LOW; //LOW = 0x0
 volatile bool parp1Hz = LOW; //LOW = 0x0
@@ -90,7 +117,7 @@ char* asunto = "Actualizacion estado frigorifico";
 //configuracion del timer
 hw_timer_t * timer = NULL;
 void IRAM_ATTR onTimer(); //Declaracion de funcion de interrupción de timer
-volatile long interruptCounter = 0;
+volatile long interruptCounter[N_SENSORES] = {0,0,0,0};
 
 hw_timer_t * timer_parp = NULL;
 void IRAM_ATTR parp_mantenimiento(); //Declaracion de funcion de interrupción de timer
@@ -98,7 +125,7 @@ void IRAM_ATTR parp_mantenimiento(); //Declaracion de funcion de interrupción d
 hw_timer_t * timer_wifi = NULL;
 void IRAM_ATTR check_wifi(); //Declaracion de funcion de interrupción de timer
 
-volatile bool flag_alarma = 0;
+volatile bool flag_alarma[N_SENSORES] = {0,0,0,0};
 volatile bool flag_timer = 0;
 
 //Funcion de manejo de mensajes de telegram
@@ -135,14 +162,29 @@ String sendEmail(char *subject, char *sender, char *body, char *recipient, boole
 
 void setup() {
 
-  pinMode(P_ACK, INPUT_PULLUP);
+  pinMode(P_ACK_0, INPUT_PULLUP);
+  pinMode(P_ACK_1, INPUT_PULLUP);
+  pinMode(P_ACK_2, INPUT_PULLUP);
+  pinMode(P_ACK_3, INPUT_PULLUP);
+
   pinMode(P_LEDWIFI, OUTPUT);
-  pinMode(P_LEDOK, OUTPUT);
-  pinMode(P_LEDALM, OUTPUT);
+  
+  pinMode(P_L0VERDE, OUTPUT);
+  pinMode(P_L0ROJO, OUTPUT);
+  pinMode(P_L1VERDE, OUTPUT);
+  pinMode(P_L1ROJO, OUTPUT);
+  pinMode(P_L2VERDE, OUTPUT);
+  pinMode(P_L2ROJO, OUTPUT);
+  pinMode(P_L3VERDE, OUTPUT);
+  pinMode(P_L3ROJO, OUTPUT);
+  
   pinMode(P_BUZZALM, OUTPUT);
    
   //config del pin de interrupcion de ACK
-  attachInterrupt(P_ACK, ISR_ACK, FALLING);
+  attachInterrupt(P_ACK_0, ISR_ACK0, FALLING);
+  attachInterrupt(P_ACK_1, ISR_ACK1, FALLING);
+  attachInterrupt(P_ACK_2, ISR_ACK2, FALLING);
+  attachInterrupt(P_ACK_3, ISR_ACK3, FALLING);
 
   Serial.begin(115200);
   
@@ -183,27 +225,34 @@ void setup() {
   timerAlarmEnable(timer_parp);
 
   //inicializacion de variable temp_actual
-   pt100Value = analogRead(P_pt100);
-   temp_preop = VALOR_CALIBRACION * pt100Value;
-   temp_actual = temp_preop / 4096.0f;
-   //Serial.println(pt100Value);
+   temp_actual[0] = calculo_temp(analogRead(P_SENSOR0));
+   temp_actual[1] = calculo_temp(analogRead(P_SENSOR1));
+   temp_actual[2] = calculo_temp(analogRead(P_SENSOR2));
+   temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
+   
+   estados_automaticos();
+   maquina_estados(estado[0],0);
+   maquina_estados(estado[1],1);
+   maquina_estados(estado[2],2);
+   maquina_estados(estado[3],3);
 }
 
 /******************************************************************************************/
 
 void loop() {
   unsigned long W_currentMillis = millis();
-  
-  digitalWrite(P_LEDOK, HIGH);
-  
+    
   if(flag_timer || flag_ACK){ //entrada periodica con timer 0 o asincrona con pulsacion de ACK
-    pt100Value = analogRead(P_pt100);
-    temp_preop = VALOR_CALIBRACION * pt100Value;    
-    temp_actual = temp_preop / 4096.0f;
-    //Serial.println(pt100Value);
+    temp_actual[0] = calculo_temp(analogRead(P_SENSOR0));
+    temp_actual[1] = calculo_temp(analogRead(P_SENSOR1));
+    temp_actual[2] = calculo_temp(analogRead(P_SENSOR2));
+    temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
     
     estados_automaticos();
-    maquina_estados(estado);
+    maquina_estados(estado[0],0);
+    maquina_estados(estado[1],1);
+    maquina_estados(estado[2],2);
+    maquina_estados(estado[3],3);
     
     if(flag_timer) flag_timer = 0;
     if(flag_ACK) flag_ACK = 0;
@@ -241,7 +290,7 @@ void loop() {
 
 /******************************************************************************************/
 
-void maquina_estados(int estado_f) {
+void maquina_estados(int estado_f, int sensor) {
   unsigned int tel_user = 0;
   unsigned int email_user = 0;
   String result;
@@ -255,17 +304,30 @@ void maquina_estados(int estado_f) {
         }
       }
       
-      estado_arranque = 1;
-      estado_OK = 0;
-      estado_ACK = 0;
-      estado_revision = 0;
-      estado_revisado = 0;
-      flag_alarma = 0;
+      estado_arranque[sensor] = 1;
+      estado_OK[sensor] = 0;
+      estado_ACK[sensor] = 0;
+      estado_revision[sensor] = 0;
+      estado_revisado[sensor] = 0;      
+      flag_alarma[sensor] = 0;
 
-      digitalWrite(P_LEDOK, LOW);
-      digitalWrite(P_LEDALM, LOW);
-      digitalWrite(P_BUZZALM, LOW);
-          
+      if(sensor == 0){
+        digitalWrite(P_L0VERDE, LOW);
+        digitalWrite(P_L0ROJO, LOW);
+      }
+      else if(sensor == 1){
+        digitalWrite(P_L1VERDE, LOW);
+        digitalWrite(P_L1ROJO, LOW);
+      }
+      else if(sensor == 2){
+        digitalWrite(P_L2VERDE, LOW);
+        digitalWrite(P_L2ROJO, LOW);
+      }
+      else if(sensor == 3){
+        digitalWrite(P_L3VERDE, LOW);
+        digitalWrite(P_L3ROJO, LOW);
+      }
+    
     break;
 
     case 1: //todo OK
@@ -273,26 +335,37 @@ void maquina_estados(int estado_f) {
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
           result = sendEmail(asunto, remitente, "El estado del frigorifico es correcto", EMAIL_LIST[email_user], false);
         }
-//        result = sendEmail(asunto, remitente, "El estado del frigorifico es correcto", "ruben.martinezm@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "El estado del frigorifico es correcto", "marcos.rodriguez@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "El estado del frigorifico es correcto", "valledorluis@uniovi.es", false);
+
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
           bot.sendMessage(CHAT_ID[tel_user], "El estado del frigorifico es correcto", "");
         }
       }
       
-      estado_arranque = 0;
-      estado_OK = 1;
-      estado_ACK = 0;
-      estado_revision = 0;
-      estado_revisado = 0;
-      flag_alarma = 0;
+      estado_arranque[sensor] = 0;
+      estado_OK[sensor] = 1;
+      estado_ACK[sensor] = 0;
+      estado_revision[sensor] = 0;
+      estado_revisado[sensor] = 0;      
+      flag_alarma[sensor] = 0;
       
       //color Verde
-      digitalWrite(P_LEDOK, HIGH);
-      digitalWrite(P_LEDALM, LOW);
-
-      digitalWrite(P_BUZZALM, LOW);
+      if(sensor == 0){
+        digitalWrite(P_L0VERDE, HIGH);
+        digitalWrite(P_L0ROJO, LOW);
+      }
+      else if(sensor == 1){
+        digitalWrite(P_L1VERDE, HIGH);
+        digitalWrite(P_L1ROJO, LOW);
+      }
+      else if(sensor == 2){
+        digitalWrite(P_L2VERDE, HIGH);
+        digitalWrite(P_L2ROJO, LOW);
+      }
+      else if(sensor == 3){
+        digitalWrite(P_L3VERDE, HIGH);
+        digitalWrite(P_L3ROJO, LOW);
+      }
+      
     break;
 
     case 2: //alarma SALIDA BUZZER
@@ -300,23 +373,36 @@ void maquina_estados(int estado_f) {
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
           result = sendEmail(asunto, remitente, "La temperatura del frigorifico es demasiado alta", EMAIL_LIST[email_user], false);
         }
-//        result = sendEmail(asunto, remitente, "La temperatura del frigorifico es demasiado alta", "ruben.martinezm@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "La temperatura del frigorifico es demasiado alta", "marcos.rodriguez@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "La temperatura del frigorifico es demasiado alta", "valledorluis@uniovi.es", false);
+
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
           bot.sendMessage(CHAT_ID[tel_user], "La temperatura del frigorifico es demasiado alta", "");
         }
       }
-      estado_arranque = 0;
-      estado_OK = 0;
-      estado_ACK = 1;
-      estado_revision = 0;
-      estado_revisado = 0;
+      estado_arranque[sensor] = 0;
+      estado_OK[sensor] = 0;
+      estado_ACK[sensor] = 1;
+      estado_revision[sensor] = 0;
+      estado_revisado[sensor] = 0;
       
-      digitalWrite(P_BUZZALM, HIGH);
       //color rojo
-      digitalWrite(P_LEDOK, LOW);
-      digitalWrite(P_LEDALM, HIGH);
+      if(sensor == 0){
+        digitalWrite(P_L0VERDE, LOW);
+        digitalWrite(P_L0ROJO, HIGH);
+      }
+      else if(sensor == 1){
+        digitalWrite(P_L1VERDE, LOW);
+        digitalWrite(P_L1ROJO, HIGH);
+      }
+      else if(sensor == 2){
+        digitalWrite(P_L2VERDE, LOW);
+        digitalWrite(P_L2ROJO, HIGH);
+      }
+      else if(sensor == 3){
+        digitalWrite(P_L3VERDE, LOW);
+        digitalWrite(P_L3ROJO, HIGH);
+      }
+
+      digitalWrite(P_BUZZALM, HIGH); 
     break;
 
     case 3: //en revision
@@ -324,24 +410,21 @@ void maquina_estados(int estado_f) {
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
           result = sendEmail(asunto, remitente, "El frigorifico se encuentra en revision", EMAIL_LIST[email_user], false);
         }
-//        result = sendEmail(asunto, remitente, "El frigorifico se encuentra en revision", "ruben.martinezm@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "El frigorifico se encuentra en revision", "marcos.rodriguez@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "El frigorifico se encuentra en revision", "valledorluis@uniovi.es", false);
+
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
           bot.sendMessage(CHAT_ID[tel_user], "El frigorifico se encuentra en revision", "");
         }
       }
-      estado_arranque = 0;
-      estado_OK = 0;
-      estado_ACK = 0;
-      estado_revision = 1;
-      estado_revisado = 0;
-      flag_alarma = 0;
+      
+      estado_arranque[sensor] = 0;
+      estado_OK[sensor] = 0;
+      estado_ACK[sensor] = 0;
+      estado_revision[sensor] = 1;
+      estado_revisado[sensor] = 0;      
+      flag_alarma[sensor] = 0;
 
       /*naranja parpadeando mediante interrupcion de 1 Hz*/
-      
-      digitalWrite(P_BUZZALM, LOW);
-      
+ 
     break;
 
     case 4: //revisado
@@ -350,45 +433,64 @@ void maquina_estados(int estado_f) {
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
           result = sendEmail(asunto, remitente, "El frigorifico esta revisado", EMAIL_LIST[email_user], false);
         }
-//        result = sendEmail(asunto, remitente, "El frigorifico esta revisado", "ruben.martinezm@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "El frigorifico esta revisado", "marcos.rodriguez@inycom.es", false);
-//        result = sendEmail(asunto, remitente, "El frigorifico esta revisado", "valledorluis@uniovi.es", false);
+
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
           bot.sendMessage(CHAT_ID[tel_user], "El frigorifico esta revisado", "");
         }
       }
-      estado_arranque = 0;
-      estado_OK = 0;
-      estado_ACK = 0;
-      estado_revision = 0;
-      estado_revisado = 1;
-      flag_alarma = 0;
-
-      digitalWrite(P_BUZZALM, LOW);
       
+      estado_arranque[sensor] = 0;
+      estado_OK[sensor] = 0;
+      estado_ACK[sensor] = 0;
+      estado_revision[sensor] = 0;
+      estado_revisado[sensor] = 1;      
+      flag_alarma[sensor] = 0;
+
+     
       //color naranja
-      digitalWrite(P_LEDOK, HIGH);
-      digitalWrite(P_LEDALM, HIGH);
+      if(sensor == 0){
+        digitalWrite(P_L0VERDE, HIGH);
+        digitalWrite(P_L0ROJO, HIGH);
+      }
+      else if(sensor == 1){
+        digitalWrite(P_L1VERDE, HIGH);
+        digitalWrite(P_L1ROJO, HIGH);
+      }
+      else if(sensor == 2){
+        digitalWrite(P_L2VERDE, HIGH);
+        digitalWrite(P_L2ROJO, HIGH);
+      }
+      else if(sensor == 3){
+        digitalWrite(P_L3VERDE, HIGH);
+        digitalWrite(P_L3ROJO, HIGH);
+      }
 
     break;
   } //fin switch
+
+  if((flag_alarma[0] && flag_alarma[1] && flag_alarma[2] && flag_alarma[3]) == 0){
+    digitalWrite(P_BUZZALM, LOW);
+  }
+      
   return;
 }
 
 /******************************************************************************************/
 
 void estados_automaticos() {
-  if ((estado == 0 && temp_actual <= -65.0f) || (estado == 4 && temp_actual <= -70.0f))
-    estado = 1;
-
-  else if ((estado == 0 || estado == 4)&& flag_alarma) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
-    estado = 2;
-
-  else if (estado == 1 && temp_actual >= -60.0f)
-    estado = 2;
-
-  else if (estado == 2 && temp_actual <= -70.0f)
-    estado = 1;
+  for(int sens = 0; sens < N_SENSORES; sens++){
+    if ((estado[sens] == 0 && temp_actual[sens] <= -65.0f) || (estado[sens] == 4 && temp_actual[sens] <= -70.0f))
+      estado[sens] = 1;
+  
+    else if ((estado[sens] == 0 || estado[sens] == 4)&& flag_alarma[sens]) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
+      estado[sens] = 2;
+  
+    else if (estado[sens] == 1 && temp_actual[sens] >= -60.0f)
+      estado[sens] = 2;
+  
+    else if (estado[sens] == 2 && temp_actual[sens] <= -70.0f)
+      estado[sens] = 1;
+  }
   return;
 }
 
@@ -398,44 +500,110 @@ void estados_automaticos() {
   Al marcar un fragmento de código con el atributo IRAM_ATTR, estamos declarando que el código compilado se colocará en la RAM interna (IRAM) del ESP32.
   De lo contrario, el código se coloca en Flash. Y el flash en el ESP32 es mucho más lento que la RAM interna.
 */
-void IRAM_ATTR ISR_ACK() {
+void IRAM_ATTR ISR_ACK0() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
 
   flag_ACK = 1;
 
-  if (estado == 4) //falso error
-    estado = 1;
+  if (estado[0] == 4) //falso error
+    estado[0] = 1;
     
-  else if (estado == 3) //fin mantenimiento
-    estado = 4;
+  else if (estado[0] == 3) //fin mantenimiento
+    estado[0] = 4;
 
-  else if (estado == 2) //inicio mantenimiento
-    estado = 3;
+  else if (estado[0] == 2) //inicio mantenimiento
+    estado[0] = 3;
 
-  else if (estado == 0) //bypass arranque
-    estado = 1;
+  else if (estado[0] == 0) //bypass arranque
+    estado[0] = 1;
     
   return;
 }
 
+void IRAM_ATTR ISR_ACK1() {
+  //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
+  delay(150); // evita rebotes del pulsador
+
+  flag_ACK = 1;
+
+  if (estado[1] == 4) //falso error
+    estado[1] = 1;
+    
+  else if (estado[1] == 3) //fin mantenimiento
+    estado[1] = 4;
+
+  else if (estado[1] == 2) //inicio mantenimiento
+    estado[1] = 3;
+
+  else if (estado[1] == 0) //bypass arranque
+    estado[1] = 1;
+    
+  return;
+}
+
+void IRAM_ATTR ISR_ACK2() {
+  //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
+  delay(150); // evita rebotes del pulsador
+
+  flag_ACK = 1;
+
+  if (estado[2] == 4) //falso error
+    estado[2] = 1;
+    
+  else if (estado[2] == 3) //fin mantenimiento
+    estado[2] = 4;
+
+  else if (estado[2] == 2) //inicio mantenimiento
+    estado[2] = 3;
+
+  else if (estado[2] == 0) //bypass arranque
+    estado[2] = 1;
+    
+  return;
+}
+
+void IRAM_ATTR ISR_ACK3() {
+  //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
+  delay(150); // evita rebotes del pulsador
+
+  flag_ACK = 1;
+
+  if (estado[3] == 4) //falso error
+    estado[3] = 1;
+    
+  else if (estado[3] == 3) //fin mantenimiento
+    estado[3] = 4;
+
+  else if (estado[3] == 2) //inicio mantenimiento
+    estado[3] = 3;
+
+  else if (estado[3] == 0) //bypass arranque
+    estado[3] = 1;
+    
+  return;
+}
 /******************************************************************************************/
 
 //Rutina de interrupcion del timer
 void IRAM_ATTR onTimer() {
 
   flag_timer = 1;
-  interruptCounter++;
- 
-  if(estado == 0 || estado == 4){
+
+  for(int k=0; k < N_SENSORES; k++){
+    interruptCounter[k]++;
+    if(estado[k] == 0 || estado[k] == 4){
     
-    if(flag_alarma)
-      interruptCounter = 0;
+    if(flag_alarma[k])
+      interruptCounter[k] = 0;
   
-    if(interruptCounter>=N_TIMERMAX && !flag_alarma)
-      flag_alarma = 1;
+    if(interruptCounter[k]>=N_TIMERMAX && !flag_alarma[0])
+      flag_alarma[k] = 1;
+    }
+    else interruptCounter[k] = 0;
   }
-  else interruptCounter = 0;
+  
+  
 }
 
 /******************************************************************************************/
@@ -447,13 +615,37 @@ void IRAM_ATTR parp_mantenimiento(){
   else
       parp1Hz = LOW;
   
-  if(estado == 3){ //color naranja
-    digitalWrite(P_LEDOK, parp1Hz);
-    digitalWrite(P_LEDALM, parp1Hz);
+  if(estado[0] == 3){ //color naranja
+    digitalWrite(P_L0VERDE, parp1Hz);
+    digitalWrite(P_L0ROJO, parp1Hz);
+  }
+  else if(estado[1] == 3){ //color naranja
+    digitalWrite(P_L1VERDE, parp1Hz);
+    digitalWrite(P_L1ROJO, parp1Hz);
+  }
+  else if(estado[2] == 3){ //color naranja
+    digitalWrite(P_L2VERDE, parp1Hz);
+    digitalWrite(P_L2ROJO, parp1Hz);
+  }
+  else if(estado[3] == 3){ //color naranja
+    digitalWrite(P_L3VERDE, parp1Hz);
+    digitalWrite(P_L3ROJO, parp1Hz);
   }
 
   if(!W_conexion)
     digitalWrite(P_LEDWIFI, parp1Hz);
+}
+
+/******************************************************************************************/
+
+float calculo_temp(float Val_sensor){
+  float temp_preop = 0;
+  float temperatura = 0;
+  
+  temp_preop = VALOR_CALIBRACION * Val_sensor;
+  temperatura = temp_preop / 4096.0f;
+   
+  return temperatura;
 }
 
 /******************************************************************************************/
