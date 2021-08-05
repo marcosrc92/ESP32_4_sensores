@@ -709,39 +709,5 @@ void handleNewMessages(int numNewMessages) {
         break;
       }
     }
-    
-//    if (text == "/estado") {
-//      switch(estado){
-//        case 0:
-//          for(user=0; user<NUM_TEL_USERS; user++){
-//            bot.sendMessage(CHAT_ID[user], "Iniciando arranque de la placa de control", "");
-//          }
-//        break;
-//
-//        case 1:
-//          for(user=0; user<NUM_TEL_USERS; user++){
-//            bot.sendMessage(CHAT_ID[user], "El estado del frigorifico es correcto", "");
-//          }
-//        break;
-//
-//        case 2:
-//          for(user=0; user<NUM_TEL_USERS; user++){
-//            bot.sendMessage(CHAT_ID[user], "La temperatura del frigorifico es demasiado alta", "");
-//          }
-//        break;
-//
-//        case 3:
-//          for(user=0; user<NUM_TEL_USERS; user++){
-//            bot.sendMessage(CHAT_ID[user], "El frigorifico se encuentra en revision", "");
-//          }
-//        break;
-//
-//        case 4:
-//          for(user=0; user<NUM_TEL_USERS; user++){
-//            bot.sendMessage(CHAT_ID[user], "El frigorifico esta revisado", "");
-//          }
-//        break;
-//      }
-//    }
   }
 }
