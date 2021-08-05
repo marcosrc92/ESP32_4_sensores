@@ -1,0 +1,353 @@
+{
+  "uuid": "1e709d01c3a1f9af968f1ef36bc815c9",
+  "path": "Offline/IoT_BOS_frigo V1",
+  "name": "IoT_BOS_frigo V1",
+  "content": "",
+  "created_at": "2021-06-08 11:50:18",
+  "updated_at": "2021-07-13 09:17:35",
+  "stick": "",
+  "documents": [
+    {
+      "uuid": "e214dbc88c4be729a31a54fc810dd915",
+      "title": "Sheet_1",
+      "description": "",
+      "docType": "1",
+      "master": "",
+      "thumb": "/images/thumb-default.png",
+      "components": {
+        "b9176cb850e147578602d24d4db66e17": 4,
+        "e36e1dba9e3b458ab19b4cc85fae67bb": 1,
+        "af054e96a3b1440a873ab2dc0b58ed83": 16,
+        "fec630cf568448acb442104db14215e1": 4,
+        "f6fb0e5557cce0ad8826bd38888fec78": 4,
+        "5db6be25ef9326e979014d00753f39b0": 4,
+        "6320786f300f4ca98c12e515f6027145": 1,
+        "41ba429427b44dd5b94527bbf9b79dd5": 1,
+        "bfe4e73648904cfabc31d93353fe013d": 2,
+        "b050b57ca9984c34929c2f678b3dd473": 1,
+        "9cc7e2f72b23ba3d0f1f65422d1736cf": 4,
+        "17d4706e6f174233952cdaa7419e9ec1": 4,
+        "ba45804949dc4e74ad55b1648dc2b9c1": 4,
+        "54faf3d353fd439cb0b0360ef65f9870": 4,
+        "e1c9d373f32d7441c3dc763c0fd0f011": 9,
+        "7651ec780786e892a42427f2e1da4958": 1,
+        "d87f3599beca47409c266dd50ab4bb19": 4
+      },
+      "BOM": [
+        [
+          "Value",
+          "Quantity",
+          "Package",
+          "Components",
+          "CustomPara"
+        ],
+        [
+          "φ5 RGB Transparent",
+          4,
+          "LED-TH_4P-BD5.8-P1.30",
+          "LED4,LED1,LED3,LED5",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "KENTO",
+            "BOM_Manufacturer Part": "φ5 RGB Transparent LED",
+            "BOM_Supplier Part": "C32985",
+            "puuid": "ac54e43d4c1941498c70b70974b687d5",
+            "uuid": "5db6be25ef9326e979014d00753f39b0"
+          }
+        ],
+        [
+          "XHB-3A",
+          4,
+          "CONNECTOR3PIN",
+          "CN4,CN2,CN3,CN1",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "BOOMELE",
+            "BOM_Manufacturer Part": "XHB-3A",
+            "BOM_Supplier Part": "C68817",
+            "puuid": "33c4b0bc0b5a489ea51bb39f2cb6dc8e",
+            "uuid": "9cc7e2f72b23ba3d0f1f65422d1736cf"
+          }
+        ],
+        [
+          "1k",
+          4,
+          "RES-ADJ_3296W",
+          "R18,R25,R11,R10",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "a4ca010af9624cec8388569e4d5538a0",
+            "uuid": "17d4706e6f174233952cdaa7419e9ec1"
+          }
+        ],
+        [
+          "7805",
+          1,
+          "TO220VERTICAL",
+          "U1",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "9605fd18386b4c74b43aa2ed282b4de1",
+            "uuid": "41ba429427b44dd5b94527bbf9b79dd5"
+          }
+        ],
+        [
+          "TS669CJ 250GF BXG",
+          4,
+          "KEY-TH_4P-L6.0-W6.0-P4.50-LS6.50",
+          "SW4,SW3,SW2,SW1",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Supplier Part": "C2765193",
+            "BOM_Manufacturer": "SHOU HAN(首韩)",
+            "BOM_Manufacturer Part": "TS669CJ 250gf BXG",
+            "puuid": "6713d423694b425cb68ce31ba237338f",
+            "uuid": "54faf3d353fd439cb0b0360ef65f9870"
+          }
+        ],
+        [
+          "LED Wifi",
+          1,
+          "RES-TH_BD5.4-P2.50-D0.4",
+          "LED2",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer": "KENTO",
+            "BOM_Manufacturer Part": "LEDOrange orange 3AO4UD",
+            "BOM_Supplier Part": "C62095",
+            "puuid": "055ec3a52d244c6290214e93ec2fba03",
+            "uuid": "7651ec780786e892a42427f2e1da4958"
+          }
+        ],
+        [
+          "CON_DC_M-DC_PTH2",
+          1,
+          "DC_BARREL_JACK_PTH_2MM_2",
+          "J1",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "1db87c4424d049b5b6e4d0a8e95ab200",
+            "uuid": "6320786f300f4ca98c12e515f6027145"
+          }
+        ],
+        [
+          "2kΩ",
+          12,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R16,R13,R8,R2,R1,R17,R31,R20,R30,R27,R23,R24",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Supplier Part": "C714305",
+            "BOM_Manufacturer": "Huaxing Mechanical-Elec.",
+            "BOM_Manufacturer Part": "CF1/4W-2KΩ±5%T52",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "af054e96a3b1440a873ab2dc0b58ed83"
+          }
+        ],
+        [
+          "500",
+          4,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R9,R12,R26,R19",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Supplier Part": "C714305",
+            "BOM_Manufacturer": "Huaxing Mechanical-Elec.",
+            "BOM_Manufacturer Part": "CF1/4W-2KΩ±5%T52",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "af054e96a3b1440a873ab2dc0b58ed83"
+          }
+        ],
+        [
+          "MOSFET-NCHANNELPTH2",
+          1,
+          "TO220VERTICAL",
+          "Q1",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "9605fd18386b4c74b43aa2ed282b4de1",
+            "uuid": "b050b57ca9984c34929c2f678b3dd473"
+          }
+        ],
+        [
+          "AD623AZN",
+          4,
+          "DIP8_",
+          "U10,U2,U6,U8",
+          {
+            "BOM_Manufacturer": "",
+            "BOM_Manufacturer Part": "",
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "puuid": "35e8dbcdcf194942865c218d62a9db97",
+            "uuid": "b9176cb850e147578602d24d4db66e17"
+          }
+        ],
+        [
+          "MicroSwitch 1C",
+          4,
+          "MICROSWITCH 1C",
+          "U9,U3,U4,U7",
+          {
+            "BOM_Manufacturer Part": "MicroSwitch 1C",
+            "puuid": "71faf195fcb14b25af27709c8065c2b5",
+            "uuid": "ba45804949dc4e74ad55b1648dc2b9c1"
+          }
+        ],
+        [
+          "CON1X02",
+          2,
+          "CONNECTOR3PIN",
+          "J2,J3",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "33c4b0bc0b5a489ea51bb39f2cb6dc8e",
+            "uuid": "bfe4e73648904cfabc31d93353fe013d"
+          }
+        ],
+        [
+          "TestPoint",
+          4,
+          "TP_TH",
+          "TP4,TP3,TP2,TP1",
+          {
+            "BOM_Manufacturer Part": "",
+            "puuid": "d65295240edb4a1c9b42ae46f37f4b4a",
+            "uuid": "d87f3599beca47409c266dd50ab4bb19"
+          }
+        ],
+        [
+          "150",
+          1,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R4",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer Part": "CFR03SJ0151AA0",
+            "BOM_Manufacturer": "UniOhm",
+            "BOM_Supplier Part": "C69877",
+            "BOM_LCSC Assembly": "Yes",
+            "BOM_Paste Type": "expand",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "e1c9d373f32d7441c3dc763c0fd0f011"
+          }
+        ],
+        [
+          "100",
+          4,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R33,R36,R35,R6",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer Part": "CFR03SJ0151AA0",
+            "BOM_Manufacturer": "UniOhm",
+            "BOM_Supplier Part": "C69877",
+            "BOM_LCSC Assembly": "Yes",
+            "BOM_Paste Type": "expand",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "e1c9d373f32d7441c3dc763c0fd0f011"
+          }
+        ],
+        [
+          "470",
+          4,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R37,R32,R5,R34",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer Part": "CFR03SJ0151AA0",
+            "BOM_Manufacturer": "UniOhm",
+            "BOM_Supplier Part": "C69877",
+            "BOM_LCSC Assembly": "Yes",
+            "BOM_Paste Type": "expand",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "e1c9d373f32d7441c3dc763c0fd0f011"
+          }
+        ],
+        [
+          "ESP32_DEV_38PINS",
+          1,
+          "AZ-DELIVERY NODEMCU ESP32 DEV KIT",
+          "U5",
+          {
+            "BOM_Manufacturer Part": "ESP32 DEV KIT",
+            "BOM_Supplier Part": "",
+            "BOM_Supplier": "",
+            "puuid": "ee2bc2b68d9d46ff8c7863544d64aece",
+            "uuid": "e36e1dba9e3b458ab19b4cc85fae67bb"
+          }
+        ],
+        [
+          "100",
+          4,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R28,R7,R21,R14",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Manufacturer Part": "CFR0S2J0101A10",
+            "BOM_Manufacturer": "UniOhm",
+            "BOM_Supplier Part": "C61282",
+            "BOM_LCSC Assembly": "Yes",
+            "BOM_Paste Type": "expand",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "f6fb0e5557cce0ad8826bd38888fec78"
+          }
+        ],
+        [
+          "3,9kΩ",
+          4,
+          "RES-TH_BD2.5-L6.5-P10.50-D0.6",
+          "R22,R3,R15,R29",
+          {
+            "BOM_Supplier": "LCSC",
+            "BOM_Supplier Part": "C714304",
+            "BOM_Manufacturer": "Huaxing Mechanical-Elec.",
+            "BOM_Manufacturer Part": "CF1/4W-1.8KΩ±5%T52",
+            "puuid": "f6ffa34674dd47c09fdfebb09b99661e",
+            "uuid": "fec630cf568448acb442104db14215e1"
+          }
+        ]
+      ],
+      "updateTime": 1624878930,
+      "createTime": 1618328904,
+      "histories": [],
+      "created_at": "2021-04-13 17:48:24",
+      "updated_at": "2021-06-28 13:15:30"
+    },
+    {
+      "uuid": "ecbb9436608dd6cef1f7d51c4f35de16",
+      "puuid": "1e709d01c3a1f9af968f1ef36bc815c9",
+      "title": "PCB_IoT_BOS_frigo V1",
+      "filename": "PCB_IoT_BOS_frigo V1.json",
+      "description": "",
+      "docType": "3",
+      "master": "",
+      "thumb": "/images/thumb-default.png",
+      "components": {
+        "ac54e43d4c1941498c70b70974b687d5": 4,
+        "33c4b0bc0b5a489ea51bb39f2cb6dc8e": 6,
+        "a4ca010af9624cec8388569e4d5538a0": 4,
+        "9605fd18386b4c74b43aa2ed282b4de1": 2,
+        "6713d423694b425cb68ce31ba237338f": 4,
+        "055ec3a52d244c6290214e93ec2fba03": 1,
+        "1db87c4424d049b5b6e4d0a8e95ab200": 1,
+        "f6ffa34674dd47c09fdfebb09b99661e": 33,
+        "35e8dbcdcf194942865c218d62a9db97": 4,
+        "71faf195fcb14b25af27709c8065c2b5": 4,
+        "d65295240edb4a1c9b42ae46f37f4b4a": 4,
+        "ee2bc2b68d9d46ff8c7863544d64aece": 1
+      },
+      "BOM": [],
+      "updateTime": 1626160655,
+      "createTime": 1623153329,
+      "histories": [],
+      "created_at": "2021-06-08 13:55:29",
+      "updated_at": "2021-07-13 09:17:35"
+    }
+  ],
+  "sort": [],
+  "title": "IoT_BOS_frigo V1",
+  "foldername": "IoT_BOS_frigo V1",
+  "schfilename": "IoT_BOS_frigo V1.json",
+  "schfilemtime": 1624878930987
+}
