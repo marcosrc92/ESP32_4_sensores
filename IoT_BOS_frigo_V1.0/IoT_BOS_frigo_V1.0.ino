@@ -49,7 +49,6 @@
 #define N_TIMERMAX 480  //tiempo en minutos para que salte la alarma
 #define N_INTENTOS_WIFI_MAX 30
 
-
 /****************************************************************************************/
 /*****************VARIABLES DE CONFIGURACION (MODIFICABLE)*******************************/
 /****************************************************************************************/
@@ -63,6 +62,7 @@
 #define NUM_TEL_USERS 2
 #define NUM_EMAIL_USERS 3
 
+
 bool en_mails = 1; //permiso de mandar emails, se modifica solo aqui. 0 = deshabilita; 1 = habilita
 
 //un array para comprobar si es usario autorizado se debe modificar NUM_TEL_USERS en los #define dependiendo del numero de usuarios autorizados
@@ -71,6 +71,12 @@ String CHAT_ID[NUM_TEL_USERS] = {"1769646176", "1395683047"};
 //el tamaño de este vector es el numero de correos distintos que se van a meter, se debe modificar en los #define
 char* EMAIL_LIST[NUM_EMAIL_USERS] = {"ruben.martinezm@inycom.es", "marcos.rodriguez@inycom.es", "valledorluis@uniovi.es"};
 
+//temperatura control cada sensor   = {Sen0,Sen1,Sen2,Sen3}
+float temperatura_alta[N_SENSORES]  = {-60, -60, -60, -60};
+float temperatura_media[N_SENSORES] = {-65, -65, -65, -65};
+float temperatura_baja[N_SENSORES]  = {-70, -70, -70, -70};
+
+//comandos (cmd) y mensajes (msg) de telegram
 String cmd_temp_sensor0 = "/temperatura0";
 String cmd_estado_sensor0 = "/estado0";
 String msg_arranque_sensor0 = "Iniciando arranque de la placa de control";
@@ -175,7 +181,7 @@ unsigned long W_interval = 30000;
 /******************************FUNCION ENVIO E-MAILS*************************************/
 /****************************************************************************************/
 
-String sendEmail(char *subject, char *sender, char *body, char *recipient, boolean htmlFormat) {
+String sendEmail(char *subject, char *sender, String body, char *recipient, boolean htmlFormat) {
   data.setLogin(GMAIL_SMTP_SERVER, GMAIL_SMTP_PORT, GMAIL_SMTP_USERNAME, GMAIL_SMTP_PASSWORD);
   data.setSender(sender, GMAIL_SMTP_USERNAME);
   data.setSubject(subject);
@@ -187,6 +193,19 @@ String sendEmail(char *subject, char *sender, char *body, char *recipient, boole
   return "";
 }
 
+/*
+String sendEmail(char *subject, char *sender, char *body, char *recipient, boolean htmlFormat) {
+  data.setLogin(GMAIL_SMTP_SERVER, GMAIL_SMTP_PORT, GMAIL_SMTP_USERNAME, GMAIL_SMTP_PASSWORD);
+  data.setSender(sender, GMAIL_SMTP_USERNAME);
+  data.setSubject(subject);
+  data.setMessage(body, htmlFormat);
+  data.addRecipient(recipient);
+  if (!MailClient.sendMail(data))
+    return MailClient.smtpErrorReason();
+  data.empty(); //tras enviar el mail limpio los datos de envio, evitando que se envien múltiples emails (espero)
+  return "";
+}
+*/
 /****************************************************************************************/
 /****************************************************************************************/
 /****************************************************************************************/
@@ -324,14 +343,22 @@ void loop() {
 void maquina_estados(int estado_f, int sensor) {
   unsigned int tel_user = 0;
   unsigned int email_user = 0;
-  String result;
+  String result, mensaje_estado;
   
   switch (estado_f) {
     case 0: //arranque inicial
 
       if(!estado_arranque){
+        mensaje_estado = "Proceso de arranque de la máquina asociada al sensor: ";
+        mensaje_estado += String(sensor);
+        mensaje_estado += ", esperando hasta 8 horas a que baje a una temperatura de control";
+
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+        
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
-           bot.sendMessage(CHAT_ID[tel_user], "Proceso de arranque, esperando hasta 8 horas a que baje de -65 ºC", "");
+           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
       
@@ -363,12 +390,16 @@ void maquina_estados(int estado_f, int sensor) {
 
     case 1: //todo OK
       if (estado_OK == 0 && en_mails){
+        mensaje_estado = "El estado de la maquina asociada al sensor: ";
+        mensaje_estado += String(sensor);
+        mensaje_estado += " es correcto";
+        
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
-          result = sendEmail(asunto, remitente, "El estado del frigorifico es correcto", EMAIL_LIST[email_user], false);
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
         }
 
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
-          bot.sendMessage(CHAT_ID[tel_user], "El estado del frigorifico es correcto", "");
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
       
@@ -401,12 +432,16 @@ void maquina_estados(int estado_f, int sensor) {
 
     case 2: //alarma SALIDA BUZZER
       if (estado_ACK == 0 && en_mails){
+        mensaje_estado = "La temperatura de la maquina asociada al sensor: ";
+        mensaje_estado += String(sensor);
+        mensaje_estado += " es demasiado alta";
+        
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
-          result = sendEmail(asunto, remitente, "La temperatura del frigorifico es demasiado alta", EMAIL_LIST[email_user], false);
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
         }
 
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
-          bot.sendMessage(CHAT_ID[tel_user], "La temperatura del frigorifico es demasiado alta", "");
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
       estado_arranque[sensor] = 0;
@@ -438,12 +473,16 @@ void maquina_estados(int estado_f, int sensor) {
 
     case 3: //en revision
       if (estado_revision == 0 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += String(sensor);
+        mensaje_estado += " se encuentra en revision";
+        
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
-          result = sendEmail(asunto, remitente, "El frigorifico se encuentra en revision", EMAIL_LIST[email_user], false);
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
         }
 
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
-          bot.sendMessage(CHAT_ID[tel_user], "El frigorifico se encuentra en revision", "");
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
       
@@ -460,13 +499,16 @@ void maquina_estados(int estado_f, int sensor) {
 
     case 4: //revisado
       if (estado_revisado == 0 && en_mails){
-
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += String(sensor);
+        mensaje_estado += " está revisada";
+        
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
-          result = sendEmail(asunto, remitente, "El frigorifico esta revisado", EMAIL_LIST[email_user], false);
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
         }
 
         for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
-          bot.sendMessage(CHAT_ID[tel_user], "El frigorifico esta revisado", "");
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
       
@@ -510,16 +552,16 @@ void maquina_estados(int estado_f, int sensor) {
 
 void estados_automaticos() {
   for(int sens = 0; sens < N_SENSORES; sens++){
-    if ((estado[sens] == 0 && temp_actual[sens] <= -65.0f) || (estado[sens] == 4 && temp_actual[sens] <= -70.0f))
+    if ((estado[sens] == 0 && temp_actual[sens] <= temperatura_media[sens]) || (estado[sens] == 4 && temp_actual[sens] <= temperatura_baja[sens]))
       estado[sens] = 1;
   
     else if ((estado[sens] == 0 || estado[sens] == 4)&& flag_alarma[sens]) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
       estado[sens] = 2;
   
-    else if (estado[sens] == 1 && temp_actual[sens] >= -60.0f)
+    else if (estado[sens] == 1 && temp_actual[sens] >= temperatura_alta[sens])
       estado[sens] = 2;
   
-    else if (estado[sens] == 2 && temp_actual[sens] <= -70.0f)
+    else if (estado[sens] == 2 && temp_actual[sens] <= temperatura_baja[sens])
       estado[sens] = 1;
   }
   return;
