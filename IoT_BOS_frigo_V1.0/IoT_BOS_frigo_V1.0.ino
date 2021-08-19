@@ -10,8 +10,6 @@
 /****************************************************************************************/
 #define GMAIL_SMTP_SERVER "smtp.gmail.com"
 #define GMAIL_SMTP_PORT 465
-//#define OUTLOOK_SMTP_SERVER "smtp.office365.com"
-//#define OUTLOOK_SMTP_PORT 587
 
 /* Credenciales e-mail */
 #define GMAIL_SMTP_USERNAME "marcosrc1992.inycom@gmail.com"
@@ -48,10 +46,8 @@
 #define P_BUZZALM 11  //modo OUTPUT (Digital)
 
 #define N_SENSORES 4
-#define N_TIMERMAX 480  //tiempo en medias horas para que salte la alarma
+#define N_TIMERMAX 480  //tiempo en minutos para que salte la alarma
 #define N_INTENTOS_WIFI_MAX 30
-
-#define BOT_TOKEN "1769477105:AAEoHzDoJ5YO7-LEhH_NC4aoRSqDFrxcKGw"
 
 
 /****************************************************************************************/
@@ -59,6 +55,9 @@
 /****************************************************************************************/
 #define WIFI_SSID "valmei"
 #define WIFI_PASSWORD "valmeilab"
+
+#define BOT_TOKEN "1769477105:AAEoHzDoJ5YO7-LEhH_NC4aoRSqDFrxcKGw"
+
 #define VALOR_CALIBRACION -104.0787
 
 #define NUM_TEL_USERS 2
@@ -71,6 +70,38 @@ String CHAT_ID[NUM_TEL_USERS] = {"1769646176", "1395683047"};
 
 //el tamaño de este vector es el numero de correos distintos que se van a meter, se debe modificar en los #define
 char* EMAIL_LIST[NUM_EMAIL_USERS] = {"ruben.martinezm@inycom.es", "marcos.rodriguez@inycom.es", "valledorluis@uniovi.es"};
+
+String cmd_temp_sensor0 = "/temperatura0";
+String cmd_estado_sensor0 = "/estado0";
+String msg_arranque_sensor0 = "Iniciando arranque de la placa de control";
+String msg_OK_sensor0 = "El estado del frigorifico es correcto";
+String msg_tempalta_sensor0 = "La temperatura del frigorifico es demasiado alta";
+String msg_enRevision_sensor0 = "El frigorifico se encuentra en revision";
+String msg_revisado_sensor0 = "El frigorifico esta revisado";
+
+String cmd_temp_sensor1 = "/temperatura1";
+String cmd_estado_sensor1 = "/estado1";
+String msg_arranque_sensor1 = "Iniciando arranque de la placa de control";
+String msg_OK_sensor1 = "El estado del frigorifico es correcto";
+String msg_tempalta_sensor1 = "La temperatura del frigorifico es demasiado alta";
+String msg_enRevision_sensor1 = "El frigorifico se encuentra en revision";
+String msg_revisado_sensor1 = "El frigorifico esta revisado";
+
+String cmd_temp_sensor2 = "/temperatura2";
+String cmd_estado_sensor2 = "/estado2";
+String msg_arranque_sensor2 = "Iniciando arranque de la placa de control";
+String msg_OK_sensor2 = "El estado del frigorifico es correcto";
+String msg_tempalta_sensor2 = "La temperatura del frigorifico es demasiado alta";
+String msg_enRevision_sensor2 = "El frigorifico se encuentra en revision";
+String msg_revisado_sensor2 = "El frigorifico esta revisado";
+
+String cmd_temp_sensor3 = "/temperatura3";
+String cmd_estado_sensor3 = "/estado3";
+String msg_arranque_sensor3 = "Iniciando arranque de la placa de control";
+String msg_OK_sensor3 = "El estado del frigorifico es correcto";
+String msg_tempalta_sensor3 = "La temperatura del frigorifico es demasiado alta";
+String msg_enRevision_sensor3 = "El frigorifico se encuentra en revision";
+String msg_revisado_sensor3 = "El frigorifico esta revisado";
 
 /****************************************************************************************/
 /****************************************************************************************/
@@ -594,11 +625,11 @@ void IRAM_ATTR onTimer() {
     interruptCounter[k]++;
     if(estado[k] == 0 || estado[k] == 4){
     
-    if(flag_alarma[k])
-      interruptCounter[k] = 0;
-  
-    if(interruptCounter[k]>=N_TIMERMAX && !flag_alarma[0])
-      flag_alarma[k] = 1;
+      if(flag_alarma[k])
+        interruptCounter[k] = 0;
+    
+      if(interruptCounter[k]>=N_TIMERMAX && !flag_alarma[0])
+        flag_alarma[k] = 1;
     }
     else interruptCounter[k] = 0;
   }
@@ -664,13 +695,12 @@ void handleNewMessages(int numNewMessages) {
     }
     if (j>=NUM_TEL_USERS){
       j=0;
-      bot.sendMessage(chat_id, "Unauthorized user", "");
+      bot.sendMessage(chat_id, "Usuario no autorizado", "");
       continue;
     }
 
     // Print the received message
     String text = bot.messages[i].text;
-    //Serial.println(text);
     String from_name = bot.messages[i].from_name;
     
     
@@ -678,36 +708,122 @@ void handleNewMessages(int numNewMessages) {
       String welcome = "Bienvenido, " + from_name + ".\n";
       welcome += "Utilice los siguientes comandos para controlar el frigorifico\n\n";
       welcome += "/comandos - Lista comandos \n";
-      welcome += "/temperatura - Temperatura actual \n";
+      welcome += "/temperaturaX - Temperatura actual \n";
+      welcome += "/estadoX - Estado de la máquina \n";
       bot.sendMessage(chat_id, welcome, "");
     }
 
-    if (text == "/temperatura") {
-      bot.sendMessage(chat_id, String(temp_actual), "");
+    if (text == cmd_temp_sensor0) {
+      bot.sendMessage(chat_id, String(temp_actual[0]), "");
+    }
+
+    if (text == cmd_temp_sensor1) {
+      bot.sendMessage(chat_id, String(temp_actual[1]), "");
+    }
+
+    if (text == cmd_temp_sensor2) {
+      bot.sendMessage(chat_id, String(temp_actual[2]), "");
+    }
+
+    if (text == cmd_temp_sensor3) {
+      bot.sendMessage(chat_id, String(temp_actual[3]), "");
     }
     
-   if (text == "/estado") {
-      switch(estado){
+   if (text == cmd_estado_sensor0) {
+      switch(estado[0]){
         case 0:
-            bot.sendMessage(chat_id, "Iniciando arranque de la placa de control", "");
+            bot.sendMessage(chat_id, msg_arranque_sensor0, "");
         break;
 
         case 1:
-            bot.sendMessage(chat_id, "El estado del frigorifico es correcto", "");
+            bot.sendMessage(chat_id, msg_OK_sensor0, "");
         break;
 
         case 2:
-            bot.sendMessage(chat_id, "La temperatura del frigorifico es demasiado alta", "");
+            bot.sendMessage(chat_id, msg_tempalta_sensor0, "");
         break;
 
         case 3:
-            bot.sendMessage(chat_id, "El frigorifico se encuentra en revision", "");
+            bot.sendMessage(chat_id, msg_enRevision_sensor0, "");
         break;
 
         case 4:
-            bot.sendMessage(chat_id, "El frigorifico esta revisado", "");
+            bot.sendMessage(chat_id, msg_revisado_sensor0, "");
         break;
       }
     }
+
+  if (text == cmd_estado_sensor1) {
+      switch(estado[1]){
+        case 0:
+            bot.sendMessage(chat_id, msg_arranque_sensor1, "");
+        break;
+
+        case 1:
+            bot.sendMessage(chat_id, msg_OK_sensor1, "");
+        break;
+
+        case 2:
+            bot.sendMessage(chat_id, msg_tempalta_sensor1, "");
+        break;
+
+        case 3:
+            bot.sendMessage(chat_id, msg_enRevision_sensor1, "");
+        break;
+
+        case 4:
+            bot.sendMessage(chat_id, msg_revisado_sensor1, "");
+        break;
+      }
+    }
+
+  if (text == cmd_estado_sensor2) {
+      switch(estado[2]){
+        case 0:
+            bot.sendMessage(chat_id, msg_arranque_sensor2, "");
+        break;
+
+        case 1:
+            bot.sendMessage(chat_id, msg_OK_sensor2, "");
+        break;
+
+        case 2:
+            bot.sendMessage(chat_id, msg_tempalta_sensor2, "");
+        break;
+
+        case 3:
+            bot.sendMessage(chat_id, msg_enRevision_sensor2, "");
+        break;
+
+        case 4:
+            bot.sendMessage(chat_id, msg_revisado_sensor2, "");
+        break;
+      }
+    }
+
+  if (text == cmd_estado_sensor3) {
+      switch(estado[3]){
+        case 0:
+            bot.sendMessage(chat_id, msg_arranque_sensor3, "");
+        break;
+
+        case 1:
+            bot.sendMessage(chat_id, msg_OK_sensor3, "");
+        break;
+
+        case 2:
+            bot.sendMessage(chat_id, msg_tempalta_sensor3, "");
+        break;
+
+        case 3:
+            bot.sendMessage(chat_id, msg_enRevision_sensor3, "");
+        break;
+
+        case 4:
+            bot.sendMessage(chat_id, msg_revisado_sensor3, "");
+        break;
+      }
+    }
+    
   }
 }
