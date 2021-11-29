@@ -69,7 +69,7 @@ bool en_mails = 1; //permiso de mandar emails, se modifica solo aqui. 0 = deshab
 String CHAT_ID[NUM_TEL_USERS] = {"1769646176", "1395683047"};
 
 //el tamaño de este vector es el numero de correos distintos que se van a meter, se debe modificar en los #define
-char* EMAIL_LIST[NUM_EMAIL_USERS] = {"ruben.martinezm@inycom.es", "marcos.rodriguez@inycom.es", "valledorluis@uniovi.es"};
+char* EMAIL_LIST[NUM_EMAIL_USERS] = {"marcos.rodriguez@inycom.es", "valledorluis@uniovi.es"};
 
 //temperatura control cada sensor   = {Sen0,Sen1,Sen2,Sen3}
 float temperatura_alta[N_SENSORES]  = {-60, -60, -60, -60};
