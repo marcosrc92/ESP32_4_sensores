@@ -12,8 +12,8 @@
 #define GMAIL_SMTP_PORT 465
 
 /* Credenciales e-mail */
-#define GMAIL_SMTP_USERNAME "marcosrc1992.inycom@gmail.com"
-#define GMAIL_SMTP_PASSWORD "Cc985090785"
+#define GMAIL_SMTP_USERNAME " "
+#define GMAIL_SMTP_PASSWORD " "
 
 /* ASIGNACIONES DE PINES DEL ESP32*/
 #define P_LEDWIFI 23  //modo OUTPUT (Digital)
