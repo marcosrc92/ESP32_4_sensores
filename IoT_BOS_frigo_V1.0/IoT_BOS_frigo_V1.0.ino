@@ -59,7 +59,7 @@
 #define WIFI_SSID "valmei"
 #define WIFI_PASSWORD "valmeilab"
 
-#define BOT_TOKEN "1769477105:AAEoHzDoJ5YO7-LEhH_NC4aoRSqDFrxcKGw"
+#define BOT_TOKEN " "
 
 #define VALOR_CALIBRACION -104.0787
 
