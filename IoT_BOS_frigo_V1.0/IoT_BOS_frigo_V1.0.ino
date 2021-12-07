@@ -18,30 +18,34 @@
 /* ASIGNACIONES DE PINES DEL ESP32*/
 #define P_LEDWIFI 23  //modo OUTPUT (Digital)
 
-#define P_ACK_0 22      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
+#define P_ACK_0 1      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 #define P_ACK_1 3      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 #define P_ACK_2 15      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 #define P_ACK_3 8       //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 
-//RGB1
+//RGB0
 #define P_SENSOR0 39  //Analog
 #define P_L0VERDE 19  //modo OUTPUT (Digital)
 #define P_L0ROJO 18   //modo OUTPUT (Digital)
+#define P_L0AZUL 33   //modo OUTPUT (Digital)
 
-//RGB2
+//RGB1
 #define P_SENSOR1 32  //Analog
 #define P_L1VERDE 17  //modo OUTPUT (Digital)
 #define P_L1ROJO 16   //modo OUTPUT (Digital)
+#define P_L1AZUL 35   //modo OUTPUT (Digital)
 
-//RGB3
+//RGB2
 #define P_SENSOR2 26  //Analog
 #define P_L2VERDE 0  //modo OUTPUT (Digital)
 #define P_L2ROJO 2   //modo OUTPUT (Digital)
+#define P_L2AZUL 34   //modo OUTPUT (Digital)
 
-//RGB4
+//RGB3
 #define P_SENSOR3 12  //Analog
 #define P_L3VERDE 6  //modo OUTPUT (Digital)
 #define P_L3ROJO 7   //modo OUTPUT (Digital)
+#define P_L3AZUL 36   //modo OUTPUT (Digital)
 
 #define P_BUZZALM 11  //modo OUTPUT (Digital)
 
@@ -221,14 +225,46 @@ void setup() {
   
   pinMode(P_L0VERDE, OUTPUT);
   pinMode(P_L0ROJO, OUTPUT);
+  pinMode(P_L0AZUL, OUTPUT);
+  digitalWrite(P_L0AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
+  
   pinMode(P_L1VERDE, OUTPUT);
   pinMode(P_L1ROJO, OUTPUT);
+  pinMode(P_L1AZUL, OUTPUT);
+  digitalWrite(P_L1AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
+  
   pinMode(P_L2VERDE, OUTPUT);
   pinMode(P_L2ROJO, OUTPUT);
+  pinMode(P_L2AZUL, OUTPUT);
+  digitalWrite(P_L2AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
+  
   pinMode(P_L3VERDE, OUTPUT);
   pinMode(P_L3ROJO, OUTPUT);
+  pinMode(P_L3AZUL, OUTPUT);
+  digitalWrite(P_L3AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
   
   pinMode(P_BUZZALM, OUTPUT);
+
+  /****************GPIO sin utilizar******************/
+  pinMode(9, OUTPUT);
+  digitalWrite(9, LOW);
+
+  pinMode(10, OUTPUT);
+  digitalWrite(10, LOW);
+
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
+
+  pinMode(14, OUTPUT);
+  digitalWrite(14, LOW);
+
+  pinMode(25, OUTPUT);
+  digitalWrite(25, LOW);
+
+  pinMode(27, OUTPUT);
+  digitalWrite(27, LOW);
+
+  /***************************************************/
    
   //config del pin de interrupcion de ACK
   attachInterrupt(P_ACK_0, ISR_ACK0, FALLING);
