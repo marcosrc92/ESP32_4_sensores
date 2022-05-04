@@ -129,24 +129,38 @@ void IRAM_ATTR ISR_ACK3();
 volatile bool flag_ACK = 0;
 
 //Declaración la de funcion de estados
-void maquina_estados(int, int);
-void estados_automaticos();
-int estado[N_SENSORES] = {0,0,0,0};
+void maquina_estados(int, String);
+void estados_automaticos_0();
+void estados_automaticos_1();
+void estados_automaticos_2();
+void estados_automaticos_3();
+//int estado[N_SENSORES] = {0,0,0,0};
+int estado_0 = 0, estado_1 = 0, estado_2 = 0, estado_3 = 0;
 
 // Analog incializacion
 
 float calculo_temp(float);
 float Val_sensor = 0;
-float temp_actual[N_SENSORES] = {0,0,0,0};
+//float temp_actual[N_SENSORES] = {0,0,0,0};
+float temp_actual_0 = 0.0f, temp_actual_1 = 0.0f, temp_actual_2 = 0.0f, temp_actual_3 = 0.0f;
 
 
 //variables de estado
 bool W_conexion = 1;
+/*
 bool estado_arranque[N_SENSORES] = {0,0,0,0};
 bool estado_OK[N_SENSORES] = {0,0,0,0};
 bool estado_ACK[N_SENSORES] = {0,0,0,0};
 bool estado_revision[N_SENSORES] = {0,0,0,0};
 bool estado_revisado[N_SENSORES] = {0,0,0,0};
+*/
+
+bool estado_arranque_0 = 0, estado_arranque_1 = 0, estado_arranque_2 = 0, estado_arranque_3 = 0;
+bool estado_OK_0 = 0, estado_OK_1 = 0, estado_OK_2 = 0, estado_OK_3 = 0;
+bool estado_ACK_0 = 0, estado_ACK_1 = 0, estado_ACK_2 = 0, estado_ACK_3 = 0;
+bool estado_revision_0 = 0, estado_revision_1 = 0, estado_revision_2 = 0, estado_revision_3 = 0;
+bool estado_revisado_0 = 0, estado_revisado_1 = 0, estado_revisado_2 = 0, estado_revisado_3 = 0;
+
 
 bool estadoLEDWIFI = LOW; //LOW = 0x0
 volatile bool parp1Hz = LOW; //LOW = 0x0
@@ -158,7 +172,11 @@ char* asunto = "Actualizacion estado frigorifico";
 //configuracion del timer
 hw_timer_t * timer = NULL;
 void IRAM_ATTR onTimer(); //Declaracion de funcion de interrupción de timer
-volatile long interruptCounter[N_SENSORES] = {0,0,0,0};
+//volatile long interruptCounter[N_SENSORES] = {0,0,0,0};
+volatile long interruptCounter_0 = 0;
+volatile long interruptCounter_1 = 0;
+volatile long interruptCounter_2 = 0;
+volatile long interruptCounter_3 = 0;
 
 hw_timer_t * timer_parp = NULL;
 void IRAM_ATTR parp_mantenimiento(); //Declaracion de funcion de interrupción de timer
@@ -166,8 +184,9 @@ void IRAM_ATTR parp_mantenimiento(); //Declaracion de funcion de interrupción d
 hw_timer_t * timer_wifi = NULL;
 void IRAM_ATTR check_wifi(); //Declaracion de funcion de interrupción de timer
 
-volatile bool flag_alarma[N_SENSORES] = {0,0,0,0};
+//volatile bool flag_alarma[N_SENSORES] = {0,0,0,0};
 volatile bool flag_timer = 0;
+volatile bool flag_alarma_0 = 0, flag_alarma_1 = 0, flag_alarma_2 = 0, flag_alarma_3 = 0;
 
 //Funcion de manejo de mensajes de telegram
 void handleNewMessages(int);
@@ -311,16 +330,19 @@ void setup() {
   timerAlarmEnable(timer_parp);
 
   //inicializacion de variable temp_actual
-   temp_actual[0] = calculo_temp(analogRead(P_SENSOR0));
-   temp_actual[1] = calculo_temp(analogRead(P_SENSOR1));
-   temp_actual[2] = calculo_temp(analogRead(P_SENSOR2));
-   temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
+   temp_actual_0 = calculo_temp(analogRead(P_SENSOR0));
+   temp_actual_1 = calculo_temp(analogRead(P_SENSOR1));
+   temp_actual_2 = calculo_temp(analogRead(P_SENSOR2));
+   temp_actual_3 = calculo_temp(analogRead(P_SENSOR3));
    
-   estados_automaticos();
-   maquina_estados(estado[0],0);
-   maquina_estados(estado[1],1);
-   maquina_estados(estado[2],2);
-   maquina_estados(estado[3],3);
+   estados_automaticos_0();
+   maquina_estados(estado_0, "SENSOR0");
+   estados_automaticos_1();
+   maquina_estados(estado_1, "SENSOR1");
+   estados_automaticos_2();
+   maquina_estados(estado_2, "SENSOR2");
+   estados_automaticos_3();
+   maquina_estados(estado_3, "SENSOR3");
 }
 
 /******************************************************************************************/
@@ -329,16 +351,19 @@ void loop() {
   unsigned long W_currentMillis = millis();
     
   if(flag_timer || flag_ACK){ //entrada periodica con timer 0 o asincrona con pulsacion de ACK
-    temp_actual[0] = calculo_temp(analogRead(P_SENSOR0));
-    temp_actual[1] = calculo_temp(analogRead(P_SENSOR1));
-    temp_actual[2] = calculo_temp(analogRead(P_SENSOR2));
-    temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
+    temp_actual_0 = calculo_temp(analogRead(P_SENSOR0));
+    temp_actual_1 = calculo_temp(analogRead(P_SENSOR1));
+    temp_actual_2 = calculo_temp(analogRead(P_SENSOR2));
+    temp_actual_3 = calculo_temp(analogRead(P_SENSOR3));
     
-    estados_automaticos();
-    maquina_estados(estado[0],0);
-    maquina_estados(estado[1],1);
-    maquina_estados(estado[2],2);
-    maquina_estados(estado[3],3);
+    estados_automaticos_0();
+    maquina_estados(estado_0, "SENSOR0");
+    estados_automaticos_1();
+    maquina_estados(estado_1, "SENSOR1");
+    estados_automaticos_2();
+    maquina_estados(estado_2, "SENSOR2");
+    estados_automaticos_3();
+    maquina_estados(estado_3, "SENSOR3");
     
     if(flag_timer) flag_timer = 0;
     if(flag_ACK) flag_ACK = 0;
@@ -376,7 +401,8 @@ void loop() {
 
 /******************************************************************************************/
 
-void maquina_estados(int estado_f, int sensor) {
+void maquina_estados(int estado_f, String sensor) {
+  
   unsigned int tel_user = 0;
   unsigned int email_user = 0;
   String result, mensaje_estado;
@@ -384,9 +410,9 @@ void maquina_estados(int estado_f, int sensor) {
   switch (estado_f) {
     case 0: //arranque inicial
 
-      if(!estado_arranque){
+      if(!estado_arranque_0){
         mensaje_estado = "Proceso de arranque de la máquina asociada al sensor: ";
-        mensaje_estado += String(sensor);
+        mensaje_estado += "SENSOR0";
         mensaje_estado += ", esperando hasta 8 horas a que baje a una temperatura de control";
 
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
@@ -397,27 +423,102 @@ void maquina_estados(int estado_f, int sensor) {
            bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
-      
+
+      if(!estado_arranque_1){
+        mensaje_estado = "Proceso de arranque de la máquina asociada al sensor: ";
+        mensaje_estado += "SENSOR1";
+        mensaje_estado += ", esperando hasta 8 horas a que baje a una temperatura de control";
+
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+        
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if(!estado_arranque_2){
+        mensaje_estado = "Proceso de arranque de la máquina asociada al sensor: ";
+        mensaje_estado += "SENSOR2";
+        mensaje_estado += ", esperando hasta 8 horas a que baje a una temperatura de control";
+
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+        
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if(!estado_arranque_3){
+        mensaje_estado = "Proceso de arranque de la máquina asociada al sensor: ";
+        mensaje_estado += "SENSOR3";
+        mensaje_estado += ", esperando hasta 8 horas a que baje a una temperatura de control";
+
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+        
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      /*
       estado_arranque[sensor] = 1;
       estado_OK[sensor] = 0;
       estado_ACK[sensor] = 0;
       estado_revision[sensor] = 0;
       estado_revisado[sensor] = 0;      
       flag_alarma[sensor] = 0;
+      */
 
-      if(sensor == 0){
+      if(sensor == "SENSOR0"){
+        estado_arranque_0 = 1;
+        estado_OK_0 = 0;
+        estado_ACK_0 = 0;
+        estado_revision_0 = 0;
+        estado_revisado_0 = 0;      
+        flag_alarma_0 = 0;
+      
         digitalWrite(P_L0VERDE, LOW);
         digitalWrite(P_L0ROJO, LOW);
       }
-      else if(sensor == 1){
+      
+      else if(sensor == "SENSOR1"){
+        estado_arranque_1 = 1;
+        estado_OK_1 = 0;
+        estado_ACK_1 = 0;
+        estado_revision_1 = 0;
+        estado_revisado_1 = 0;      
+        flag_alarma_1 = 0;
+        
         digitalWrite(P_L1VERDE, LOW);
         digitalWrite(P_L1ROJO, LOW);
       }
-      else if(sensor == 2){
+      
+      else if(sensor == "SENSOR2"){
+        estado_arranque_2 = 1;
+        estado_OK_2 = 0;
+        estado_ACK_2 = 0;
+        estado_revision_2 = 0;
+        estado_revisado_2 = 0;      
+        flag_alarma_2 = 0;
+        
         digitalWrite(P_L2VERDE, LOW);
         digitalWrite(P_L2ROJO, LOW);
       }
-      else if(sensor == 3){
+      
+      else if(sensor == "SENSOR3"){
+        estado_arranque_3 = 1;
+        estado_OK_3 = 0;
+        estado_ACK_3 = 0;
+        estado_revision_3 = 0;
+        estado_revisado_3 = 0;      
+        flag_alarma_3 = 0;
+        
         digitalWrite(P_L3VERDE, LOW);
         digitalWrite(P_L3ROJO, LOW);
       }
@@ -425,9 +526,9 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 1: //todo OK
-      if (estado_OK == 0 && en_mails){
+      if (estado_OK_0 == 0 && en_mails){
         mensaje_estado = "El estado de la maquina asociada al sensor: ";
-        mensaje_estado += String(sensor);
+        mensaje_estado += "SENSOR0";
         mensaje_estado += " es correcto";
         
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
@@ -438,28 +539,101 @@ void maquina_estados(int estado_f, int sensor) {
           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
-      
+
+      if (estado_OK_1 == 0 && en_mails){
+        mensaje_estado = "El estado de la maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR1";
+        mensaje_estado += " es correcto";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_OK_2 == 0 && en_mails){
+        mensaje_estado = "El estado de la maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR2";
+        mensaje_estado += " es correcto";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_OK_3 == 0 && en_mails){
+        mensaje_estado = "El estado de la maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR3";
+        mensaje_estado += " es correcto";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      /*
       estado_arranque[sensor] = 0;
       estado_OK[sensor] = 1;
       estado_ACK[sensor] = 0;
       estado_revision[sensor] = 0;
       estado_revisado[sensor] = 0;      
       flag_alarma[sensor] = 0;
+      */
       
       //color Verde
-      if(sensor == 0){
+      if(sensor == "SENSOR0"){
+        estado_arranque_0 = 0;
+        estado_OK_0 = 1;
+        estado_ACK_0 = 0;
+        estado_revision_0 = 0;
+        estado_revisado_0 = 0;      
+        flag_alarma_0 = 0;
+        
         digitalWrite(P_L0VERDE, HIGH);
         digitalWrite(P_L0ROJO, LOW);
       }
-      else if(sensor == 1){
+      
+      else if(sensor == "SENSOR1"){
+        estado_arranque_1 = 0;
+        estado_OK_1 = 1;
+        estado_ACK_1 = 0;
+        estado_revision_1 = 0;
+        estado_revisado_1 = 0;      
+        flag_alarma_1 = 0;
+      
         digitalWrite(P_L1VERDE, HIGH);
         digitalWrite(P_L1ROJO, LOW);
       }
-      else if(sensor == 2){
+      else if(sensor == "SENSOR2"){
+        estado_arranque_2 = 0;
+        estado_OK_2 = 1;
+        estado_ACK_2 = 0;
+        estado_revision_2 = 0;
+        estado_revisado_2 = 0;      
+        flag_alarma_2 = 0;
+        
         digitalWrite(P_L2VERDE, HIGH);
         digitalWrite(P_L2ROJO, LOW);
       }
-      else if(sensor == 3){
+      else if(sensor == "SENSOR3"){
+        estado_arranque_3 = 0;
+        estado_OK_3 = 1;
+        estado_ACK_3 = 0;
+        estado_revision_3 = 0;
+        estado_revisado_3 = 0;      
+        flag_alarma_3 = 0;
+        
         digitalWrite(P_L3VERDE, HIGH);
         digitalWrite(P_L3ROJO, LOW);
       }
@@ -467,9 +641,9 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 2: //alarma SALIDA BUZZER
-      if (estado_ACK == 0 && en_mails){
+      if (estado_ACK_0  == 0 && en_mails){
         mensaje_estado = "La temperatura de la maquina asociada al sensor: ";
-        mensaje_estado += String(sensor);
+        mensaje_estado += "SENSOR0";
         mensaje_estado += " es demasiado alta";
         
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
@@ -480,26 +654,97 @@ void maquina_estados(int estado_f, int sensor) {
           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
+
+      if (estado_ACK_1  == 0 && en_mails){
+        mensaje_estado = "La temperatura de la maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR1";
+        mensaje_estado += " es demasiado alta";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_ACK_2  == 0 && en_mails){
+        mensaje_estado = "La temperatura de la maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR2";
+        mensaje_estado += " es demasiado alta";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_ACK_3  == 0 && en_mails){
+        mensaje_estado = "La temperatura de la maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR3";
+        mensaje_estado += " es demasiado alta";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      /*
       estado_arranque[sensor] = 0;
       estado_OK[sensor] = 0;
       estado_ACK[sensor] = 1;
       estado_revision[sensor] = 0;
       estado_revisado[sensor] = 0;
+      */
       
       //color rojo
-      if(sensor == 0){
+      if(sensor == "SENSOR0"){
+        estado_arranque_0 = 0;
+        estado_OK_0 = 0;
+        estado_ACK_0 = 1;
+        estado_revision_0 = 0;
+        estado_revisado_0 = 0;
+      
         digitalWrite(P_L0VERDE, LOW);
         digitalWrite(P_L0ROJO, HIGH);
       }
-      else if(sensor == 1){
+      
+      else if(sensor == "SENSOR1"){
+        estado_arranque_1 = 0;
+        estado_OK_1 = 0;
+        estado_ACK_1 = 1;
+        estado_revision_1 = 0;
+        estado_revisado_1 = 0;
+        
         digitalWrite(P_L1VERDE, LOW);
         digitalWrite(P_L1ROJO, HIGH);
       }
-      else if(sensor == 2){
+      
+      else if(sensor == "SENSOR2"){
+        estado_arranque_2 = 0;
+        estado_OK_2 = 0;
+        estado_ACK_2 = 1;
+        estado_revision_2 = 0;
+        estado_revisado_2 = 0;
+        
         digitalWrite(P_L2VERDE, LOW);
         digitalWrite(P_L2ROJO, HIGH);
       }
-      else if(sensor == 3){
+      else if(sensor == "SENSOR3"){
+        estado_arranque_3 = 0;
+        estado_OK_3 = 0;
+        estado_ACK_3 = 1;
+        estado_revision_3 = 0;
+        estado_revisado_3 = 0;
+        
         digitalWrite(P_L3VERDE, LOW);
         digitalWrite(P_L3ROJO, HIGH);
       }
@@ -508,9 +753,9 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 3: //en revision
-      if (estado_revision == 0 && en_mails){
+      if (estado_revision_0 == 0 && en_mails){
         mensaje_estado = "La maquina asociada al sensor: ";
-        mensaje_estado += String(sensor);
+        mensaje_estado += "SENSOR0";
         mensaje_estado += " se encuentra en revision";
         
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
@@ -521,22 +766,101 @@ void maquina_estados(int estado_f, int sensor) {
           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
-      
+
+      if (estado_revision_1 == 0 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR1";
+        mensaje_estado += " se encuentra en revision";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_revision_2 == 0 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR2";
+        mensaje_estado += " se encuentra en revision";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_revision_3 == 0 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR3";
+        mensaje_estado += " se encuentra en revision";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      /*
       estado_arranque[sensor] = 0;
       estado_OK[sensor] = 0;
       estado_ACK[sensor] = 0;
       estado_revision[sensor] = 1;
       estado_revisado[sensor] = 0;      
       flag_alarma[sensor] = 0;
+      */
 
+      if(sensor == "SENSOR0"){
+        estado_arranque_0 = 0;
+        estado_OK_0 = 0;
+        estado_ACK_0 = 0;
+        estado_revision_0 = 1;
+        estado_revisado_0 = 0;      
+        flag_alarma_0 = 0;
+      }
+
+      else if(sensor == "SENSOR1"){
+        estado_arranque_1 = 0;
+        estado_OK_1 = 0;
+        estado_ACK_1 = 0;
+        estado_revision_1 = 1;
+        estado_revisado_1 = 0;      
+        flag_alarma_1 = 0;
+      }
+
+      if(sensor == "SENSOR2"){
+        estado_arranque_2 = 0;
+        estado_OK_2 = 0;
+        estado_ACK_2 = 0;
+        estado_revision_2 = 1;
+        estado_revisado_2 = 0;      
+        flag_alarma_2 = 0;
+      }
+
+      if(sensor == "SENSOR3"){
+        estado_arranque_3 = 0;
+        estado_OK_3 = 0;
+        estado_ACK_3 = 0;
+        estado_revision_3 = 1;
+        estado_revisado_3 = 0;      
+        flag_alarma_3 = 0;
+      }
       /*naranja parpadeando mediante interrupcion de 1 Hz*/
  
     break;
 
     case 4: //revisado
-      if (estado_revisado == 0 && en_mails){
+      if (estado_revisado_0 == 1 && en_mails){
         mensaje_estado = "La maquina asociada al sensor: ";
-        mensaje_estado += String(sensor);
+        mensaje_estado += "SENSOR0";
         mensaje_estado += " está revisada";
         
         for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
@@ -547,29 +871,102 @@ void maquina_estados(int estado_f, int sensor) {
           bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
         }
       }
-      
+
+      if (estado_revisado_1 == 1 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR1";
+        mensaje_estado += " está revisada";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_revisado_2 == 1 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR2";
+        mensaje_estado += " está revisada";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      if (estado_revisado_3 == 1 && en_mails){
+        mensaje_estado = "La maquina asociada al sensor: ";
+        mensaje_estado += "SENSOR3";
+        mensaje_estado += " está revisada";
+        
+        for(email_user=0; email_user<NUM_EMAIL_USERS; email_user++){
+          result = sendEmail(asunto, remitente, mensaje_estado, EMAIL_LIST[email_user], false);
+        }
+
+        for(tel_user=0; tel_user<NUM_TEL_USERS; tel_user++){
+          bot.sendMessage(CHAT_ID[tel_user], mensaje_estado, "");
+        }
+      }
+
+      /*
       estado_arranque[sensor] = 0;
       estado_OK[sensor] = 0;
       estado_ACK[sensor] = 0;
       estado_revision[sensor] = 0;
       estado_revisado[sensor] = 1;      
       flag_alarma[sensor] = 0;
-
+      */
      
       //color naranja
-      if(sensor == 0){
+      if(sensor == "SENSOR0"){
+        estado_arranque_0 = 0;
+        estado_OK_0 = 0;
+        estado_ACK_0 = 0;
+        estado_revision_0 = 0;
+        estado_revisado_0 = 1;      
+        flag_alarma_0 = 0;
+      
         digitalWrite(P_L0VERDE, HIGH);
         digitalWrite(P_L0ROJO, HIGH);
       }
-      else if(sensor == 1){
+      
+      else if(sensor == "SENSOR1"){
+        estado_arranque_1 = 0;
+        estado_OK_1 = 0;
+        estado_ACK_1 = 0;
+        estado_revision_1 = 0;
+        estado_revisado_1 = 1;      
+        flag_alarma_1 = 0;
+        
         digitalWrite(P_L1VERDE, HIGH);
         digitalWrite(P_L1ROJO, HIGH);
       }
-      else if(sensor == 2){
+      
+      else if(sensor == "SENSOR2"){
+        estado_arranque_2 = 0;
+        estado_OK_2 = 0;
+        estado_ACK_2 = 0;
+        estado_revision_2 = 0;
+        estado_revisado_2 = 1;      
+        flag_alarma_2 = 0;
+        
         digitalWrite(P_L2VERDE, HIGH);
         digitalWrite(P_L2ROJO, HIGH);
       }
-      else if(sensor == 3){
+      else if(sensor == "SENSOR3"){
+        estado_arranque_3 = 0;
+        estado_OK_3 = 0;
+        estado_ACK_3 = 0;
+        estado_revision_3 = 0;
+        estado_revisado_3 = 1;      
+        flag_alarma_3 = 0;
+        
         digitalWrite(P_L3VERDE, HIGH);
         digitalWrite(P_L3ROJO, HIGH);
       }
@@ -577,7 +974,7 @@ void maquina_estados(int estado_f, int sensor) {
     break;
   } //fin switch
 
-  if((flag_alarma[0] && flag_alarma[1] && flag_alarma[2] && flag_alarma[3]) == 0){
+  if((flag_alarma_0 && flag_alarma_1 && flag_alarma_2 && flag_alarma_3) == 0){
     digitalWrite(P_BUZZALM, LOW);
   }
       
@@ -586,20 +983,72 @@ void maquina_estados(int estado_f, int sensor) {
 
 /******************************************************************************************/
 
-void estados_automaticos() {
-  for(int sens = 0; sens < N_SENSORES; sens++){
-    if ((estado[sens] == 0 && temp_actual[sens] <= temperatura_media[sens]) || (estado[sens] == 4 && temp_actual[sens] <= temperatura_baja[sens]))
-      estado[sens] = 1;
+void estados_automaticos_0() {
+  //for(int sens = 0; sens < N_SENSORES; sens++){
+    if (estado_0 == 0 && (temp_actual_0 <= temperatura_media[0]) || (temp_actual_0 <= temperatura_baja[0]))
+      estado_0 = 1;
   
-    else if ((estado[sens] == 0 || estado[sens] == 4)&& flag_alarma[sens]) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
-      estado[sens] = 2;
+    else if ((estado_0 == 0 || estado_0 == 4)&& flag_alarma_0) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
+      estado_0 = 2;
   
-    else if (estado[sens] == 1 && temp_actual[sens] >= temperatura_alta[sens])
-      estado[sens] = 2;
+    else if (estado_0 == 1 && temp_actual_0 >= temperatura_alta[0])
+      estado_0 = 2;
   
-    else if (estado[sens] == 2 && temp_actual[sens] <= temperatura_baja[sens])
-      estado[sens] = 1;
-  }
+    else if (estado_0 == 2 && temp_actual_0 <= temperatura_baja[0])
+      estado_0 = 1;
+  //}
+  return;
+}
+
+
+void estados_automaticos_1() {
+  //for(int sens = 0; sens < N_SENSORES; sens++){
+    if (estado_1 == 0 && (temp_actual_1 <= temperatura_media[1]) || (temp_actual_1 <= temperatura_baja[1]))
+      estado_1 = 1;
+  
+    else if ((estado_1 == 0 || estado_1 == 4)&& flag_alarma_1) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
+      estado_1 = 2;
+  
+    else if (estado_1 == 1 && temp_actual_1 >= temperatura_alta[1])
+      estado_1 = 2;
+  
+    else if (estado_1 == 2 && temp_actual_1 <= temperatura_baja[1])
+      estado_1 = 1;
+  //}
+  return;
+}
+
+void estados_automaticos_2() {
+  //for(int sens = 0; sens < N_SENSORES; sens++){
+    if (estado_2 == 0 && (temp_actual_2 <= temperatura_media[2]) || (temp_actual_2 <= temperatura_baja[2]))
+      estado_2 = 1;
+  
+    else if ((estado_2 == 0 || estado_2 == 4)&& flag_alarma_2) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
+      estado_2 = 2;
+  
+    else if (estado_2 == 1 && temp_actual_2 >= temperatura_alta[2])
+      estado_2 = 2;
+  
+    else if (estado_2 == 2 && temp_actual_2 <= temperatura_baja[2])
+      estado_2 = 1;
+  //}
+  return;
+}
+
+void estados_automaticos_3() {
+  //for(int sens = 0; sens < N_SENSORES; sens++){
+    if (estado_3 == 0 && (temp_actual_3 <= temperatura_media[3]) || (temp_actual_3 <= temperatura_baja[3]))
+      estado_3 = 1;
+  
+    else if ((estado_3 == 0 || estado_3 == 4)&& flag_alarma_3) //alarma por tiempo al haber entrado N veces en el timer 0 sin haber reiniciado el contador de entrada
+      estado_3 = 2;
+  
+    else if (estado_3 == 1 && temp_actual_3 >= temperatura_alta[3])
+      estado_3 = 2;
+  
+    else if (estado_3 == 2 && temp_actual_3 <= temperatura_baja[3])
+      estado_3 = 1;
+  //}
   return;
 }
 
@@ -615,17 +1064,17 @@ void IRAM_ATTR ISR_ACK0() {
 
   flag_ACK = 1;
 
-  if (estado[0] == 4) //falso error
-    estado[0] = 1;
+  if (estado_0 == 4) //falso error
+    estado_0 = 1;
     
-  else if (estado[0] == 3) //fin mantenimiento
-    estado[0] = 4;
+  else if (estado_0 == 3) //fin mantenimiento
+    estado_0 = 4;
 
-  else if (estado[0] == 2) //inicio mantenimiento
-    estado[0] = 3;
+  else if (estado_0 == 2) //inicio mantenimiento
+    estado_0 = 3;
 
-  else if (estado[0] == 0) //bypass arranque
-    estado[0] = 1;
+  else if (estado_0 == 0) //bypass arranque
+    estado_0 = 1;
     
   return;
 }
@@ -636,17 +1085,17 @@ void IRAM_ATTR ISR_ACK1() {
 
   flag_ACK = 1;
 
-  if (estado[1] == 4) //falso error
-    estado[1] = 1;
+  if (estado_1 == 4) //falso error
+    estado_1 = 1;
     
-  else if (estado[1] == 3) //fin mantenimiento
-    estado[1] = 4;
+  else if (estado_1 == 3) //fin mantenimiento
+    estado_1 = 4;
 
-  else if (estado[1] == 2) //inicio mantenimiento
-    estado[1] = 3;
+  else if (estado_1 == 2) //inicio mantenimiento
+    estado_1 = 3;
 
-  else if (estado[1] == 0) //bypass arranque
-    estado[1] = 1;
+  else if (estado_1 == 0) //bypass arranque
+    estado_1 = 1;
     
   return;
 }
@@ -657,17 +1106,17 @@ void IRAM_ATTR ISR_ACK2() {
 
   flag_ACK = 1;
 
-  if (estado[2] == 4) //falso error
-    estado[2] = 1;
+  if (estado_2 == 4) //falso error
+    estado_2 = 1;
     
-  else if (estado[2] == 3) //fin mantenimiento
-    estado[2] = 4;
+  else if (estado_2 == 3) //fin mantenimiento
+    estado_2 = 4;
 
-  else if (estado[2] == 2) //inicio mantenimiento
-    estado[2] = 3;
+  else if (estado_2 == 2) //inicio mantenimiento
+    estado_2 = 3;
 
-  else if (estado[2] == 0) //bypass arranque
-    estado[2] = 1;
+  else if (estado_2 == 0) //bypass arranque
+    estado_2 = 1;
     
   return;
 }
@@ -678,17 +1127,17 @@ void IRAM_ATTR ISR_ACK3() {
 
   flag_ACK = 1;
 
-  if (estado[3] == 4) //falso error
-    estado[3] = 1;
+  if (estado_3 == 4) //falso error
+    estado_3 = 1;
     
-  else if (estado[3] == 3) //fin mantenimiento
-    estado[3] = 4;
+  else if (estado_3 == 3) //fin mantenimiento
+    estado_3 = 4;
 
-  else if (estado[3] == 2) //inicio mantenimiento
-    estado[3] = 3;
+  else if (estado_3 == 2) //inicio mantenimiento
+    estado_3 = 3;
 
-  else if (estado[3] == 0) //bypass arranque
-    estado[3] = 1;
+  else if (estado_3 == 0) //bypass arranque
+    estado_3 = 1;
     
   return;
 }
@@ -699,18 +1148,53 @@ void IRAM_ATTR onTimer() {
 
   flag_timer = 1;
 
-  for(int k=0; k < N_SENSORES; k++){
-    interruptCounter[k]++;
-    if(estado[k] == 0 || estado[k] == 4){
+  //for(int k=0; k < N_SENSORES; k++){
+    //interruptCounter[k]++;
+    interruptCounter_0++;
+    interruptCounter_1++;
+    interruptCounter_2++;
+    interruptCounter_3++;
     
-      if(flag_alarma[k])
-        interruptCounter[k] = 0;
+    if(estado_0 == 0 || estado_0 == 4){
     
-      if(interruptCounter[k]>=N_TIMERMAX && !flag_alarma[0])
-        flag_alarma[k] = 1;
+      if(flag_alarma_0)
+        interruptCounter_0 = 0;
+    
+      if(interruptCounter_0>=N_TIMERMAX && !flag_alarma_0)
+        flag_alarma_0 = 1;
     }
-    else interruptCounter[k] = 0;
-  }
+    else interruptCounter_0 = 0;
+
+    if(estado_1 == 0 || estado_1 == 4){
+    
+      if(flag_alarma_1)
+        interruptCounter_1 = 0;
+    
+      if(interruptCounter_1>=N_TIMERMAX && !flag_alarma_1)
+        flag_alarma_1 = 1;
+    }
+    else interruptCounter_1 = 0;
+
+    if(estado_2 == 0 || estado_2 == 4){
+    
+      if(flag_alarma_2)
+        interruptCounter_2 = 0;
+    
+      if(interruptCounter_2>=N_TIMERMAX && !flag_alarma_2)
+        flag_alarma_2 = 1;
+    }
+    else interruptCounter_2 = 0;
+
+    if(estado_3 == 0 || estado_3 == 4){
+    
+      if(flag_alarma_3)
+        interruptCounter_3 = 0;
+    
+      if(interruptCounter_3>=N_TIMERMAX && !flag_alarma_3)
+        flag_alarma_3 = 1;
+    }
+    else interruptCounter_3 = 0;
+  //}
   
   
 }
@@ -724,19 +1208,19 @@ void IRAM_ATTR parp_mantenimiento(){
   else
       parp1Hz = LOW;
   
-  if(estado[0] == 3){ //color naranja
+  if(estado_0 == 3){ //color naranja
     digitalWrite(P_L0VERDE, parp1Hz);
     digitalWrite(P_L0ROJO, parp1Hz);
   }
-  else if(estado[1] == 3){ //color naranja
+  else if(estado_1 == 3){ //color naranja
     digitalWrite(P_L1VERDE, parp1Hz);
     digitalWrite(P_L1ROJO, parp1Hz);
   }
-  else if(estado[2] == 3){ //color naranja
+  else if(estado_2 == 3){ //color naranja
     digitalWrite(P_L2VERDE, parp1Hz);
     digitalWrite(P_L2ROJO, parp1Hz);
   }
-  else if(estado[3] == 3){ //color naranja
+  else if(estado_3 == 3){ //color naranja
     digitalWrite(P_L3VERDE, parp1Hz);
     digitalWrite(P_L3ROJO, parp1Hz);
   }
@@ -792,23 +1276,23 @@ void handleNewMessages(int numNewMessages) {
     }
 
     if (text == cmd_temp_sensor0) {
-      bot.sendMessage(chat_id, String(temp_actual[0]), "");
+      bot.sendMessage(chat_id, String(temp_actual_0), "");
     }
 
     if (text == cmd_temp_sensor1) {
-      bot.sendMessage(chat_id, String(temp_actual[1]), "");
+      bot.sendMessage(chat_id, String(temp_actual_1), "");
     }
 
     if (text == cmd_temp_sensor2) {
-      bot.sendMessage(chat_id, String(temp_actual[2]), "");
+      bot.sendMessage(chat_id, String(temp_actual_2), "");
     }
 
     if (text == cmd_temp_sensor3) {
-      bot.sendMessage(chat_id, String(temp_actual[3]), "");
+      bot.sendMessage(chat_id, String(temp_actual_3), "");
     }
     
    if (text == cmd_estado_sensor0) {
-      switch(estado[0]){
+      switch(estado_0){
         case 0:
             bot.sendMessage(chat_id, msg_arranque_sensor0, "");
         break;
@@ -832,7 +1316,7 @@ void handleNewMessages(int numNewMessages) {
     }
 
   if (text == cmd_estado_sensor1) {
-      switch(estado[1]){
+      switch(estado_1){
         case 0:
             bot.sendMessage(chat_id, msg_arranque_sensor1, "");
         break;
@@ -856,7 +1340,7 @@ void handleNewMessages(int numNewMessages) {
     }
 
   if (text == cmd_estado_sensor2) {
-      switch(estado[2]){
+      switch(estado_2){
         case 0:
             bot.sendMessage(chat_id, msg_arranque_sensor2, "");
         break;
@@ -880,7 +1364,7 @@ void handleNewMessages(int numNewMessages) {
     }
 
   if (text == cmd_estado_sensor3) {
-      switch(estado[3]){
+      switch(estado_3){
         case 0:
             bot.sendMessage(chat_id, msg_arranque_sensor3, "");
         break;

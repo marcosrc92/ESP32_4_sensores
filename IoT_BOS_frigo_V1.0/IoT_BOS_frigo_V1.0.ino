@@ -67,7 +67,7 @@
 #define NUM_EMAIL_USERS 3
 
 
-bool en_mails = 1; //permiso de mandar emails, se modifica solo aqui. 0 = deshabilita; 1 = habilita
+bool en_mails = 0; //permiso de mandar emails, se modifica solo aqui. 0 = deshabilita; 1 = habilita
 
 //un array para comprobar si es usario autorizado se debe modificar NUM_TEL_USERS en los #define dependiendo del numero de usuarios autorizados
 String CHAT_ID[NUM_TEL_USERS] = {"1769646176", "1395683047"};
@@ -272,7 +272,7 @@ void setup() {
   attachInterrupt(P_ACK_2, ISR_ACK2, FALLING);
   attachInterrupt(P_ACK_3, ISR_ACK3, FALLING);
 
-  Serial.begin(115200);
+  //Serial.begin(115200);
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -384,7 +384,7 @@ void maquina_estados(int estado_f, int sensor) {
   switch (estado_f) {
     case 0: //arranque inicial
 
-      if(!estado_arranque){
+      if(!estado_arranque[sensor]){
         mensaje_estado = "Proceso de arranque de la máquina asociada al sensor: ";
         mensaje_estado += String(sensor);
         mensaje_estado += ", esperando hasta 8 horas a que baje a una temperatura de control";
@@ -425,7 +425,7 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 1: //todo OK
-      if (estado_OK == 0 && en_mails){
+      if (estado_OK[sensor] == 0 && en_mails){
         mensaje_estado = "El estado de la maquina asociada al sensor: ";
         mensaje_estado += String(sensor);
         mensaje_estado += " es correcto";
@@ -467,7 +467,7 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 2: //alarma SALIDA BUZZER
-      if (estado_ACK == 0 && en_mails){
+      if (estado_ACK[sensor] == 0 && en_mails){
         mensaje_estado = "La temperatura de la maquina asociada al sensor: ";
         mensaje_estado += String(sensor);
         mensaje_estado += " es demasiado alta";
@@ -508,7 +508,7 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 3: //en revision
-      if (estado_revision == 0 && en_mails){
+      if (estado_revision[sensor] == 0 && en_mails){
         mensaje_estado = "La maquina asociada al sensor: ";
         mensaje_estado += String(sensor);
         mensaje_estado += " se encuentra en revision";
@@ -534,7 +534,7 @@ void maquina_estados(int estado_f, int sensor) {
     break;
 
     case 4: //revisado
-      if (estado_revisado == 0 && en_mails){
+      if (estado_revisado[sensor] == 0 && en_mails){
         mensaje_estado = "La maquina asociada al sensor: ";
         mensaje_estado += String(sensor);
         mensaje_estado += " está revisada";
