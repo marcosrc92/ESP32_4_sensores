@@ -43,8 +43,8 @@
 
 //RGB3
 #define P_SENSOR3 12  //Analog
-#define P_L3VERDE 6  //modo OUTPUT (Digital)
-#define P_L3ROJO 7   //modo OUTPUT (Digital)
+#define P_L3VERDE 7  //modo OUTPUT (Digital)
+//#define P_L3ROJO 6   //modo OUTPUT (Digital)
 #define P_L3AZUL 36   //modo OUTPUT (Digital)
 
 #define P_BUZZALM 11  //modo OUTPUT (Digital)
@@ -56,10 +56,13 @@
 /****************************************************************************************/
 /*****************VARIABLES DE CONFIGURACION (MODIFICABLE)*******************************/
 /****************************************************************************************/
-#define WIFI_SSID "valmei"
-#define WIFI_PASSWORD "valmeilab"
+//#define WIFI_SSID "valmei"
+//#define WIFI_PASSWORD "valmeilab"
 
-#define BOT_TOKEN " "
+#define WIFI_SSID "BV4900Pro"
+#define WIFI_PASSWORD "marcosrc92"
+
+#define BOT_TOKEN "1769477105:AAHHjNkaC8Wydb3qyRCTw6itfpX9a21uET0"
 
 #define VALOR_CALIBRACION -104.0787
 
@@ -197,32 +200,21 @@ String sendEmail(char *subject, char *sender, String body, char *recipient, bool
   return "";
 }
 
-/*
-String sendEmail(char *subject, char *sender, char *body, char *recipient, boolean htmlFormat) {
-  data.setLogin(GMAIL_SMTP_SERVER, GMAIL_SMTP_PORT, GMAIL_SMTP_USERNAME, GMAIL_SMTP_PASSWORD);
-  data.setSender(sender, GMAIL_SMTP_USERNAME);
-  data.setSubject(subject);
-  data.setMessage(body, htmlFormat);
-  data.addRecipient(recipient);
-  if (!MailClient.sendMail(data))
-    return MailClient.smtpErrorReason();
-  data.empty(); //tras enviar el mail limpio los datos de envio, evitando que se envien múltiples emails (espero)
-  return "";
-}
-*/
 /****************************************************************************************/
 /****************************************************************************************/
 /****************************************************************************************/
 
 void setup() {
 
+  Serial.begin(115200);
+
+  pinMode(P_LEDWIFI, OUTPUT);
+
   pinMode(P_ACK_0, INPUT_PULLUP);
   pinMode(P_ACK_1, INPUT_PULLUP);
   pinMode(P_ACK_2, INPUT_PULLUP);
   pinMode(P_ACK_3, INPUT_PULLUP);
 
-  pinMode(P_LEDWIFI, OUTPUT);
-  
   pinMode(P_L0VERDE, OUTPUT);
   pinMode(P_L0ROJO, OUTPUT);
   pinMode(P_L0AZUL, OUTPUT);
@@ -239,7 +231,7 @@ void setup() {
   digitalWrite(P_L2AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
   
   pinMode(P_L3VERDE, OUTPUT);
-  pinMode(P_L3ROJO, OUTPUT);
+  //pinMode(P_L3ROJO, OUTPUT);
   pinMode(P_L3AZUL, OUTPUT);
   digitalWrite(P_L3AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
   
@@ -265,14 +257,12 @@ void setup() {
   digitalWrite(27, LOW);
 
   /***************************************************/
-   
+  
   //config del pin de interrupcion de ACK
   attachInterrupt(P_ACK_0, ISR_ACK0, FALLING);
   attachInterrupt(P_ACK_1, ISR_ACK1, FALLING);
   attachInterrupt(P_ACK_2, ISR_ACK2, FALLING);
-  attachInterrupt(P_ACK_3, ISR_ACK3, FALLING);
-
-  //Serial.begin(115200);
+//  attachInterrupt(P_ACK_3, ISR_ACK3, FALLING);
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -294,7 +284,7 @@ void setup() {
   //Serial.println("WiFi connected.");
 
   secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT);
-
+/*
   //setup del timer 0 interrupcion lectura ADC
   timer = timerBegin(0, 65536, true);       //timer 0 PS = 65536 f=1220Hz countUp=true
   timerAttachInterrupt(timer, &onTimer, true);
@@ -321,11 +311,14 @@ void setup() {
    maquina_estados(estado[1],1);
    maquina_estados(estado[2],2);
    maquina_estados(estado[3],3);
+
+   Serial.end();*/
 }
 
 /******************************************************************************************/
 
 void loop() {
+  
   unsigned long W_currentMillis = millis();
     
   if(flag_timer || flag_ACK){ //entrada periodica con timer 0 o asincrona con pulsacion de ACK
@@ -419,7 +412,7 @@ void maquina_estados(int estado_f, int sensor) {
       }
       else if(sensor == 3){
         digitalWrite(P_L3VERDE, LOW);
-        digitalWrite(P_L3ROJO, LOW);
+        //digitalWrite(P_L3ROJO, LOW);
       }
     
     break;
@@ -461,7 +454,7 @@ void maquina_estados(int estado_f, int sensor) {
       }
       else if(sensor == 3){
         digitalWrite(P_L3VERDE, HIGH);
-        digitalWrite(P_L3ROJO, LOW);
+        //digitalWrite(P_L3ROJO, LOW);
       }
       
     break;
@@ -501,7 +494,7 @@ void maquina_estados(int estado_f, int sensor) {
       }
       else if(sensor == 3){
         digitalWrite(P_L3VERDE, LOW);
-        digitalWrite(P_L3ROJO, HIGH);
+       // digitalWrite(P_L3ROJO, HIGH);
       }
 
       digitalWrite(P_BUZZALM, HIGH); 
@@ -571,7 +564,7 @@ void maquina_estados(int estado_f, int sensor) {
       }
       else if(sensor == 3){
         digitalWrite(P_L3VERDE, HIGH);
-        digitalWrite(P_L3ROJO, HIGH);
+       // digitalWrite(P_L3ROJO, HIGH);
       }
 
     break;
@@ -609,6 +602,7 @@ void estados_automaticos() {
   Al marcar un fragmento de código con el atributo IRAM_ATTR, estamos declarando que el código compilado se colocará en la RAM interna (IRAM) del ESP32.
   De lo contrario, el código se coloca en Flash. Y el flash en el ESP32 es mucho más lento que la RAM interna.
 */
+
 void IRAM_ATTR ISR_ACK0() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
@@ -671,7 +665,7 @@ void IRAM_ATTR ISR_ACK2() {
     
   return;
 }
-
+/*
 void IRAM_ATTR ISR_ACK3() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
@@ -692,6 +686,7 @@ void IRAM_ATTR ISR_ACK3() {
     
   return;
 }
+*/
 /******************************************************************************************/
 
 //Rutina de interrupcion del timer
@@ -738,7 +733,7 @@ void IRAM_ATTR parp_mantenimiento(){
   }
   else if(estado[3] == 3){ //color naranja
     digitalWrite(P_L3VERDE, parp1Hz);
-    digitalWrite(P_L3ROJO, parp1Hz);
+   // digitalWrite(P_L3ROJO, parp1Hz);
   }
 
   if(!W_conexion)
@@ -905,3 +900,5 @@ void handleNewMessages(int numNewMessages) {
     
   }
 }
+
+/******************************************************************************************/
