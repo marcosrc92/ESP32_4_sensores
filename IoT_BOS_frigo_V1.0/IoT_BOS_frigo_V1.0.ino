@@ -284,7 +284,7 @@ void setup() {
   //Serial.println("WiFi connected.");
 
   secured_client.setCACert(TELEGRAM_CERTIFICATE_ROOT);
-/*
+
   //setup del timer 0 interrupcion lectura ADC
   timer = timerBegin(0, 65536, true);       //timer 0 PS = 65536 f=1220Hz countUp=true
   timerAttachInterrupt(timer, &onTimer, true);
@@ -312,7 +312,7 @@ void setup() {
    maquina_estados(estado[2],2);
    maquina_estados(estado[3],3);
 
-   Serial.end();*/
+   Serial.end();
 }
 
 /******************************************************************************************/
