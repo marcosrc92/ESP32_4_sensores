@@ -16,23 +16,23 @@
 #define GMAIL_SMTP_PASSWORD " "
 
 /* ASIGNACIONES DE PINES DEL ESP32*/
-#define P_LEDWIFI 23  //modo OUTPUT (Digital)
+#define P_LEDWIFI 22  //modo OUTPUT (Digital)
 
 #define P_ACK_0 1      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 #define P_ACK_1 3      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 #define P_ACK_2 15      //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
-#define P_ACK_3 8       //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
+//#define P_ACK_3 8       //modo INPUT_PULLUP con ISR a flanco descencente (Digital)
 
 //RGB0
 #define P_SENSOR0 39  //Analog
-#define P_L0VERDE 19  //modo OUTPUT (Digital)
-#define P_L0ROJO 18   //modo OUTPUT (Digital)
+#define P_L0VERDE 21  //modo OUTPUT (Digital)
+#define P_L0ROJO 17   //modo OUTPUT (Digital)
 #define P_L0AZUL 33   //modo OUTPUT (Digital)
 
 //RGB1
 #define P_SENSOR1 32  //Analog
-#define P_L1VERDE 17  //modo OUTPUT (Digital)
-#define P_L1ROJO 16   //modo OUTPUT (Digital)
+#define P_L1VERDE 16  //modo OUTPUT (Digital)
+#define P_L1ROJO 4   //modo OUTPUT (Digital)
 #define P_L1AZUL 35   //modo OUTPUT (Digital)
 
 //RGB2
@@ -42,10 +42,10 @@
 #define P_L2AZUL 34   //modo OUTPUT (Digital)
 
 //RGB3
-#define P_SENSOR3 12  //Analog
-#define P_L3VERDE 7  //modo OUTPUT (Digital)
+//#define P_SENSOR3 12  //Analog
+//#define P_L3VERDE 7  //modo OUTPUT (Digital)
 //#define P_L3ROJO 6   //modo OUTPUT (Digital)
-#define P_L3AZUL 36   //modo OUTPUT (Digital)
+//#define P_L3AZUL 36   //modo OUTPUT (Digital)
 
 #define P_BUZZALM 11  //modo OUTPUT (Digital)
 
@@ -107,7 +107,7 @@ String msg_OK_sensor2 = "El estado del frigorifico es correcto";
 String msg_tempalta_sensor2 = "La temperatura del frigorifico es demasiado alta";
 String msg_enRevision_sensor2 = "El frigorifico se encuentra en revision";
 String msg_revisado_sensor2 = "El frigorifico esta revisado";
-
+/*
 String cmd_temp_sensor3 = "/temperatura3";
 String cmd_estado_sensor3 = "/estado3";
 String msg_arranque_sensor3 = "Iniciando arranque de la placa de control";
@@ -115,7 +115,7 @@ String msg_OK_sensor3 = "El estado del frigorifico es correcto";
 String msg_tempalta_sensor3 = "La temperatura del frigorifico es demasiado alta";
 String msg_enRevision_sensor3 = "El frigorifico se encuentra en revision";
 String msg_revisado_sensor3 = "El frigorifico esta revisado";
-
+*/
 /****************************************************************************************/
 /****************************************************************************************/
 /****************************************************************************************/
@@ -129,7 +129,10 @@ void IRAM_ATTR ISR_ACK1();
 void IRAM_ATTR ISR_ACK2();
 void IRAM_ATTR ISR_ACK3();
 
-volatile bool flag_ACK = 0;
+bool flag_ACK0 = 0;
+bool flag_ACK1 = 0;
+bool flag_ACK2 = 0;
+bool flag_ACK3 = 0;
 
 //Declaración la de funcion de estados
 void maquina_estados(int, int);
@@ -166,8 +169,8 @@ volatile long interruptCounter[N_SENSORES] = {0,0,0,0};
 hw_timer_t * timer_parp = NULL;
 void IRAM_ATTR parp_mantenimiento(); //Declaracion de funcion de interrupción de timer
 
-hw_timer_t * timer_wifi = NULL;
-void IRAM_ATTR check_wifi(); //Declaracion de funcion de interrupción de timer
+//hw_timer_t * timer_wifi = NULL;
+//void IRAM_ATTR check_wifi(); //Declaracion de funcion de interrupción de timer
 
 volatile bool flag_alarma[N_SENSORES] = {0,0,0,0};
 volatile bool flag_timer = 0;
@@ -206,14 +209,15 @@ String sendEmail(char *subject, char *sender, String body, char *recipient, bool
 
 void setup() {
 
-  Serial.begin(115200);
+  //Serial.begin(115200);
+  Serial.end();
 
   pinMode(P_LEDWIFI, OUTPUT);
 
   pinMode(P_ACK_0, INPUT_PULLUP);
   pinMode(P_ACK_1, INPUT_PULLUP);
   pinMode(P_ACK_2, INPUT_PULLUP);
-  pinMode(P_ACK_3, INPUT_PULLUP);
+  //pinMode(P_ACK_3, INPUT_PULLUP);
 
   pinMode(P_L0VERDE, OUTPUT);
   pinMode(P_L0ROJO, OUTPUT);
@@ -230,10 +234,10 @@ void setup() {
   pinMode(P_L2AZUL, OUTPUT);
   digitalWrite(P_L2AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
   
-  pinMode(P_L3VERDE, OUTPUT);
+  //pinMode(P_L3VERDE, OUTPUT);
   //pinMode(P_L3ROJO, OUTPUT);
-  pinMode(P_L3AZUL, OUTPUT);
-  digitalWrite(P_L3AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
+  //pinMode(P_L3AZUL, OUTPUT);
+  //digitalWrite(P_L3AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
   
   pinMode(P_BUZZALM, OUTPUT);
 
@@ -257,12 +261,7 @@ void setup() {
   digitalWrite(27, LOW);
 
   /***************************************************/
-  
-  //config del pin de interrupcion de ACK
-  attachInterrupt(P_ACK_0, ISR_ACK0, FALLING);
-  attachInterrupt(P_ACK_1, ISR_ACK1, FALLING);
-  attachInterrupt(P_ACK_2, ISR_ACK2, FALLING);
-//  attachInterrupt(P_ACK_3, ISR_ACK3, FALLING);
+
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
@@ -302,17 +301,24 @@ void setup() {
 
   //inicializacion de variable temp_actual
    temp_actual[0] = calculo_temp(analogRead(P_SENSOR0));
+   delay(50);
    temp_actual[1] = calculo_temp(analogRead(P_SENSOR1));
+   delay(50);
    temp_actual[2] = calculo_temp(analogRead(P_SENSOR2));
-   temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
-   
+   //temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
+/*
    estados_automaticos();
    maquina_estados(estado[0],0);
    maquina_estados(estado[1],1);
    maquina_estados(estado[2],2);
-   maquina_estados(estado[3],3);
-
-   Serial.end();
+   //maquina_estados(estado[3],3);
+*/
+     
+  //config del pin de interrupcion de ACK
+  attachInterrupt(P_ACK_0, ISR_ACK0, FALLING);
+  attachInterrupt(P_ACK_1, ISR_ACK1, FALLING);
+  attachInterrupt(P_ACK_2, ISR_ACK2, FALLING);
+//  attachInterrupt(P_ACK_3, ISR_ACK3, FALLING);
 }
 
 /******************************************************************************************/
@@ -321,20 +327,38 @@ void loop() {
   
   unsigned long W_currentMillis = millis();
     
-  if(flag_timer || flag_ACK){ //entrada periodica con timer 0 o asincrona con pulsacion de ACK
+  if(flag_timer || flag_ACK0 || flag_ACK1 || flag_ACK2 || flag_ACK3){ //entrada periodica con timer 0 o asincrona con pulsacion de ACK
     temp_actual[0] = calculo_temp(analogRead(P_SENSOR0));
+    delay(50);
     temp_actual[1] = calculo_temp(analogRead(P_SENSOR1));
+    delay(50);
     temp_actual[2] = calculo_temp(analogRead(P_SENSOR2));
-    temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
+    //temp_actual[3] = calculo_temp(analogRead(P_SENSOR3));
     
     estados_automaticos();
-    maquina_estados(estado[0],0);
-    maquina_estados(estado[1],1);
-    maquina_estados(estado[2],2);
-    maquina_estados(estado[3],3);
+
+    if(flag_ACK0){
+      maquina_estados(estado[0],0);
+      flag_ACK0 = 0;
+    }
+    
+    if(flag_ACK1){
+      maquina_estados(estado[1],1);
+      flag_ACK1 = 0;
+    }
+
+    if(flag_ACK2){
+      maquina_estados(estado[2],2);
+      flag_ACK2 = 0;
+    }
+/*
+    if(flag_ACK3){
+      maquina_estados(estado[3],3);
+      flag_ACK3 = 0;
+    }
+*/
     
     if(flag_timer) flag_timer = 0;
-    if(flag_ACK) flag_ACK = 0;
   }
 
   //reconexion
@@ -342,9 +366,10 @@ void loop() {
     digitalWrite(P_LEDWIFI, HIGH);
     W_conexion = 1;
   }
-  else 
+  else{ 
     W_conexion = 0;
-   
+  }
+  
   if ((WiFi.status() != WL_CONNECTED) && (W_currentMillis - W_previousMillis >= W_interval)){
     //Serial.println("Reconectando al WiFi");
     WiFi.disconnect();
@@ -411,7 +436,7 @@ void maquina_estados(int estado_f, int sensor) {
         digitalWrite(P_L2ROJO, LOW);
       }
       else if(sensor == 3){
-        digitalWrite(P_L3VERDE, LOW);
+        //digitalWrite(P_L3VERDE, LOW);
         //digitalWrite(P_L3ROJO, LOW);
       }
     
@@ -453,7 +478,7 @@ void maquina_estados(int estado_f, int sensor) {
         digitalWrite(P_L2ROJO, LOW);
       }
       else if(sensor == 3){
-        digitalWrite(P_L3VERDE, HIGH);
+        //digitalWrite(P_L3VERDE, HIGH);
         //digitalWrite(P_L3ROJO, LOW);
       }
       
@@ -493,7 +518,7 @@ void maquina_estados(int estado_f, int sensor) {
         digitalWrite(P_L2ROJO, HIGH);
       }
       else if(sensor == 3){
-        digitalWrite(P_L3VERDE, LOW);
+        //digitalWrite(P_L3VERDE, LOW);
        // digitalWrite(P_L3ROJO, HIGH);
       }
 
@@ -563,7 +588,7 @@ void maquina_estados(int estado_f, int sensor) {
         digitalWrite(P_L2ROJO, HIGH);
       }
       else if(sensor == 3){
-        digitalWrite(P_L3VERDE, HIGH);
+        //digitalWrite(P_L3VERDE, HIGH);
        // digitalWrite(P_L3ROJO, HIGH);
       }
 
@@ -606,8 +631,9 @@ void estados_automaticos() {
 void IRAM_ATTR ISR_ACK0() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
-
-  flag_ACK = 1;
+  
+  
+  flag_ACK0 = 1;
 
   if (estado[0] == 4) //falso error
     estado[0] = 1;
@@ -627,8 +653,9 @@ void IRAM_ATTR ISR_ACK0() {
 void IRAM_ATTR ISR_ACK1() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
+  Serial.println("ISR_ACK1");
 
-  flag_ACK = 1;
+  flag_ACK1 = 1;
 
   if (estado[1] == 4) //falso error
     estado[1] = 1;
@@ -648,8 +675,8 @@ void IRAM_ATTR ISR_ACK1() {
 void IRAM_ATTR ISR_ACK2() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
-
-  flag_ACK = 1;
+ 
+  flag_ACK2 = 1;
 
   if (estado[2] == 4) //falso error
     estado[2] = 1;
@@ -670,7 +697,7 @@ void IRAM_ATTR ISR_ACK3() {
   //cambiar estado cuando se pulsa acuse de recibo (ESTADOS MANUALES)
   delay(150); // evita rebotes del pulsador
 
-  flag_ACK = 1;
+  flag_ACK3 = 1;
 
   if (estado[3] == 4) //falso error
     estado[3] = 1;
@@ -732,7 +759,7 @@ void IRAM_ATTR parp_mantenimiento(){
     digitalWrite(P_L2ROJO, parp1Hz);
   }
   else if(estado[3] == 3){ //color naranja
-    digitalWrite(P_L3VERDE, parp1Hz);
+    //digitalWrite(P_L3VERDE, parp1Hz);
    // digitalWrite(P_L3ROJO, parp1Hz);
   }
 
@@ -797,11 +824,11 @@ void handleNewMessages(int numNewMessages) {
     if (text == cmd_temp_sensor2) {
       bot.sendMessage(chat_id, String(temp_actual[2]), "");
     }
-
+/*
     if (text == cmd_temp_sensor3) {
       bot.sendMessage(chat_id, String(temp_actual[3]), "");
     }
-    
+*/    
    if (text == cmd_estado_sensor0) {
       switch(estado[0]){
         case 0:
@@ -873,7 +900,7 @@ void handleNewMessages(int numNewMessages) {
         break;
       }
     }
-
+/*
   if (text == cmd_estado_sensor3) {
       switch(estado[3]){
         case 0:
@@ -896,7 +923,7 @@ void handleNewMessages(int numNewMessages) {
             bot.sendMessage(chat_id, msg_revisado_sensor3, "");
         break;
       }
-    }
+    }*/
     
   }
 }
