@@ -48,7 +48,7 @@
 //#define P_L3ROJO 6   //modo OUTPUT (Digital)
 //#define P_L3AZUL 36   //modo OUTPUT (Digital)
 
-#define P_BUZZALM 34  //modo OUTPUT (Digital)
+#define P_BUZZER 13  //modo OUTPUT (Digital)
 
 #define N_SENSORES 4
 #define N_TIMERMAX 480  //tiempo en minutos para que salte la alarma
@@ -239,7 +239,7 @@ void setup() {
   //pinMode(P_L3AZUL, OUTPUT);
   //digitalWrite(P_L3AZUL, LOW); //no se utiliza por ahora, asi se mantiene el color azul apagado
 
-  pinMode(P_BUZZALM, OUTPUT);
+  pinMode(P_BUZZER, OUTPUT);
 
   /****************GPIO sin utilizar******************/
   pinMode(9, OUTPUT);
@@ -331,7 +331,7 @@ void setup() {
   attachInterrupt(P_ACK_2, ISR_ACK2, RISING);
   //  attachInterrupt(P_ACK_3, ISR_ACK3, RISING);
 
-  digitalWrite(P_BUZZALM, HIGH);
+  
 }
 
 /******************************************************************************************/
@@ -362,11 +362,6 @@ void loop() {
     flag_timer = 0;
   }
 
-  if ((flag_alarma[0] && flag_alarma[1] && flag_alarma[2] && flag_alarma[3]) == 0) {
-      digitalWrite(P_BUZZALM, LOW);
-  }
-  else digitalWrite(P_BUZZALM, HIGH);
-
     if(flag_ACK0){
       maquina_estados(estado[0],0);
       flag_ACK0 = 0;
@@ -388,6 +383,12 @@ void loop() {
     }
 */
 
+  if (!flag_alarma[0] && !flag_alarma[1] && !flag_alarma[2] && !flag_alarma[3]) {
+    digitalWrite(P_BUZZER, LOW);
+  }
+  else digitalWrite(P_BUZZER, HIGH);
+
+    
   //reconexion
   if (WiFi.status() == WL_CONNECTED) {
     digitalWrite(P_LEDWIFI, HIGH);
@@ -555,7 +556,7 @@ void maquina_estados(int estado_f, int sensor) {
         flag_alarma[3] = 0;
       }
 */
-      //digitalWrite(P_BUZZALM, HIGH);
+      //digitalWrite(P_BUZZER, HIGH);
       break;
 
     case 3: //en revision
@@ -675,7 +676,10 @@ void IRAM_ATTR ISR_ACK0() {
   else if (estado[0] == 2) //inicio mantenimiento
     estado[0] = 3;
 
-  else if (estado[0] == 0) //bypass arranque
+  else if (estado[0] == 0 && temp_actual[0] >= temperatura_alta[0]) //bypass arranque
+    estado[0] = 2;
+
+  else if (estado[0] == 0 && temp_actual[0] >= temperatura_alta[0]) //bypass arranque
     estado[0] = 1;
 
   return;
@@ -697,8 +701,11 @@ void IRAM_ATTR ISR_ACK1() {
   else if (estado[1] == 2) //inicio mantenimiento
     estado[1] = 3;
 
-  else if (estado[1] == 0) //bypass arranque
-    estado[1] = 1;
+  else if (estado[0] == 0 && temp_actual[1] >= temperatura_alta[1]) //bypass arranque
+    estado[0] = 2;
+
+  else if (estado[0] == 0 && temp_actual[1] >= temperatura_alta[1]) //bypass arranque
+    estado[0] = 1;
 
   return;
 }
@@ -718,8 +725,11 @@ void IRAM_ATTR ISR_ACK2() {
   else if (estado[2] == 2) //inicio mantenimiento
     estado[2] = 3;
 
-  else if (estado[2] == 0) //bypass arranque
-    estado[2] = 1;
+  else if (estado[0] == 0 && temp_actual[2] >= temperatura_alta[2]) //bypass arranque
+    estado[0] = 2;
+
+  else if (estado[0] == 0 && temp_actual[2] >= temperatura_alta[2]) //bypass arranque
+    estado[0] = 1;
 
   return;
 }
@@ -739,8 +749,11 @@ void IRAM_ATTR ISR_ACK2() {
   else if (estado[3] == 2) //inicio mantenimiento
     estado[3] = 3;
 
-  else if (estado[3] == 0) //bypass arranque
-    estado[3] = 1;
+  else if (estado[0] == 0 && temp_actual[3] >= temperatura_alta[3]) //bypass arranque
+    estado[0] = 2;
+
+  else if (estado[0] == 0 && temp_actual[3] >= temperatura_alta[3]) //bypass arranque
+    estado[0] = 1;
 
   return;
   }
