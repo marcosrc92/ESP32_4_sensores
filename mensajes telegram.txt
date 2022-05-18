@@ -1,0 +1,11 @@
+comandos - Lista comandos
+temperatura - Temperatura actual
+estado - Comprobación del estado de la placa de control
+
+temperatura0 - Temp nevera(1) -20ºC
+temperatura1 - Temp nevera(2) -20ºC
+temperatura2 - Temp nevera 4ºC
+
+estado0 - Estado nevera(1) -20ºC
+estado1 - Estado nevera(2) -20ºC
+estado2 - Estado nevera 4ºC
