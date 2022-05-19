@@ -13,8 +13,7 @@
 #define GMAIL_SMTP_PORT 465
 
 /* Credenciales e-mail */
-#define GMAIL_SMTP_USERNAME " "
-#define GMAIL_SMTP_PASSWORD " "
+
 
 /* ASIGNACIONES DE PINES DEL ESP32*/
 #define P_LEDWIFI 22  //modo OUTPUT (Digital)
@@ -57,11 +56,16 @@
 /****************************************************************************************/
 /*****************VARIABLES DE CONFIGURACION (MODIFICABLE)*******************************/
 /****************************************************************************************/
-//#define WIFI_SSID "valmei"
-//#define WIFI_PASSWORD "valmeilab"
+#define GMAIL_SMTP_USERNAME " "
+#define GMAIL_SMTP_PASSWORD " "
 
-#define WIFI_SSID "BV4900Pro"
-#define WIFI_PASSWORD "marcosrc92"
+
+#define WIFI_SSID "valmei"
+#define WIFI_PASSWORD "valmeilab"
+
+//#define WIFI_SSID "BV4900Pro"
+//#define WIFI_PASSWORD "marcosrc92"
+
 
 #define BOT_TOKEN "1769477105:AAHHjNkaC8Wydb3qyRCTw6itfpX9a21uET0"
 
