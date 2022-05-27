@@ -67,7 +67,7 @@
 //#define WIFI_PASSWORD "marcosrc92"
 
 
-#define BOT_TOKEN "1769477105:AAHHjNkaC8Wydb3qyRCTw6itfpX9a21uET0"
+#define BOT_TOKEN " "
 
 #define VALOR_CALIBRACION_menos20 -50.75
 #define VALOR_CALIBRACION_menos80 -33.31
